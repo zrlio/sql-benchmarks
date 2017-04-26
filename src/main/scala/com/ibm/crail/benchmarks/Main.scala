@@ -30,6 +30,20 @@ object Main {
     println("concat arguments = " + foo(args))
     val options = new ParseOptions()
     options.parse(args)
-  }
 
+    val test:SQLTest = SQLTestFactory.newTestInstance(options)
+    val s = System.nanoTime()
+    test.execute()
+    val e = System.nanoTime()
+    println("-------------------------------------------------")
+    println("Test           : " + test.plainExplain())
+    println("Action         : " + options.getAction.toString)
+    println("Execution time : " + (e - s)/1000000 + " msec")
+    if(options.getVerbose){
+      println("---------------- explain ------------------------")
+      println(test.explain())
+    }
+    println("-------------------------------------------------")
+    test.stop
+  }
 }
