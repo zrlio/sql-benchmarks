@@ -35,7 +35,7 @@ class ReadOnly(val options: ParseOptions) extends SQLTest {
     case e1:org.apache.spark.sql.AnalysisException =>
       if(e1.message.contains("Unable to infer schema for Parquet. It must be specified manually.")) {
         System.err.println("-----\n "
-          + "Hint: Perhaps you specified a TPC-DS directory instead of a file?\n" +
+          + "Hint: Perhaps you specified a directory (e.g., TPC-DS directory) instead of a parquet file?\n" +
           "-----\n")
       }
       e1.printStackTrace()
