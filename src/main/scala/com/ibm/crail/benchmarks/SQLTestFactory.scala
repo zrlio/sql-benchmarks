@@ -20,14 +20,18 @@
  */
 package com.ibm.crail.benchmarks
 
-import com.ibm.crail.benchmarks.tests.{EquiJoin, Q65}
+import com.ibm.crail.benchmarks.tests.{EquiJoin, Q65, ReadOnly}
 
 object SQLTestFactory {
   def newTestInstance(options: ParseOptions) : SQLTest = {
     if(options.isTestEquiJoin) {
       new EquiJoin(options)
-    } else {
+    } else if (options.isTestQ65) {
       new Q65(options)
+    } else if (options.isTestReadOnly) {
+      new ReadOnly(options)
+    } else {
+      throw new Exception("Illegal test name ")
     }
   }
 }

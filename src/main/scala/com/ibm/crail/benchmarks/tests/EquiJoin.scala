@@ -30,7 +30,7 @@ class EquiJoin(val options: ParseOptions) extends SQLTest {
   private val key = options.getJoinKey
   private val result = f1.joinWith(f2, f1(key) === f2(key))
 
-  override def execute(): Unit = takeAction(options, result)
+  override def execute(): String = takeAction(options, result)
 
   override def explain(): Unit = result.explain(true)
 

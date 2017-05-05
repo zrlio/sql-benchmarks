@@ -33,17 +33,18 @@ object Main {
 
     val test:SQLTest = SQLTestFactory.newTestInstance(options)
     val s = System.nanoTime()
-    test.execute()
+    val result = test.execute()
     val e = System.nanoTime()
     println("-------------------------------------------------")
     println("Test           : " + test.plainExplain())
     println("Action         : " + options.getAction.toString)
     println("Execution time : " + (e - s)/1000000 + " msec")
+    println("Result         : " +  result)
     if(options.getVerbose){
       println("---------------- explain ------------------------")
       println(test.explain())
     }
     println("-------------------------------------------------")
-    test.stop
+    test.stop()
   }
 }

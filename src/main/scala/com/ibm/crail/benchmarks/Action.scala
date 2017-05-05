@@ -31,5 +31,5 @@ case class Save(format: String, fileName: String) extends Action {
 }
 
 case class Collect(items: Int) extends Action {
-  override def toString: String = "collect("+items+") "
+  override def toString: String = "collect(" + items + ") "
 }

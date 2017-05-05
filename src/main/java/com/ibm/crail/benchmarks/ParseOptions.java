@@ -44,9 +44,9 @@ public class ParseOptions {
                 "                                                                             ";
         options = new Options();
         options.addOption("h", "help", false, "show help.");
-        options.addOption("t", "test", true, "which test to perform, options are: equijoin or q65");
+        options.addOption("t", "test", true, "which test to perform, options are (case insensitive): equiJoin, q65, readOnly ");
         options.addOption("i", "input", true, "comma separated list of input files/directories. " +
-                "EquiJoin takes two files and q65 takes a tpc-ds data directory");
+                "EquiJoin takes two files, q65 takes a tpc-ds data directory, and readOnly takes a file");
         options.addOption("k", "key", true, "key for EquiJoin, default is IntIndex");
         options.addOption("v", "verbose", false, "verbose");
         options.addOption("a", "action", true, "action to take. Your options are: \n" +
@@ -55,9 +55,10 @@ public class ParseOptions {
                 " 3. save, filename[str, default: /tmp], format[str, default: parquet]  \n");
 
         // set defaults
-        this.test = "EquiJoin";
+        this.test = "readOnly";
         this.joinKey = "intKey";
         this.verbose = false;
+        this.action = new Count();
     }
 
     public void show_help() {
@@ -134,7 +135,7 @@ public class ParseOptions {
             errorAbort("ERROR:" + " please specify some input files for the SQL test");
         }
         // check valid test names
-        if(!isTestEquiJoin() && !isTestQ65()) {
+        if(!isTestEquiJoin() && !isTestQ65() && !isTestReadOnly()) {
             errorAbort("ERROR: illegal test name : " + this.test);
         }
         /* some sanity checks */
@@ -149,6 +150,10 @@ public class ParseOptions {
 
     public boolean isTestQ65(){
         return this.test.compareToIgnoreCase("q65") == 0;
+    }
+
+    public boolean isTestReadOnly(){
+        return this.test.compareToIgnoreCase("readOnly") == 0;
     }
 
     public String[] getInputFiles(){

@@ -28,21 +28,28 @@ import org.apache.spark.sql.{Dataset, SaveMode, SparkSession}
 abstract class SQLTest {
   protected val spark = SparkSession.builder.appName("Spark SQL benchmarks").getOrCreate
 
-  def takeAction(options: ParseOptions, result: Dataset[_]) {
+  def takeAction(options: ParseOptions, result: Dataset[_]):String = {
     val action = options.getAction
     action match {
-      case Collect(items: Int) => result.limit(items).collect()
-      case Count() => result.count()
-      case Save(format: String, fileName: String) => result.write.format(format).mode(SaveMode.Overwrite).save(fileName)
+      case Collect(items: Int) => {
+        "collected " + result.limit(items).collect().length + " items"
+      }
+      case Count() => {
+        "count result " + result.count() + " items "
+      }
+      case Save(format: String, fileName: String) => {
+        result.write.format(format).mode(SaveMode.Overwrite).save(fileName)
+        ("saved " + fileName + " in format " + format)
+      }
       case _ => throw new Exception("Illegal action")
     }
   }
 
-  def execute()
+  def execute():String
 
   def explain()
 
   def plainExplain(): String
 
-  def stop = spark.stop()
+  def stop():Unit = spark.stop()
 }

@@ -50,9 +50,11 @@ class Q65(val options: ParseOptions) extends SQLTest {
   //val res1 = sc3.where(sc("revenue") <= sb("ave").*(0.1)) // on synthetic data this does not work
 
   private val res1 = sc3.where(sc("revenue") <= sb("ave"))
-  private val result = res1.orderBy("s_store_name", "i_item_desc").select("s_store_name", "i_item_desc", "revenue", "i_current_price", "i_wholesale_cost", "i_brand")
+  private val result = res1
+    .orderBy("s_store_name", "i_item_desc")
+    .select("s_store_name", "i_item_desc", "revenue", "i_current_price", "i_wholesale_cost", "i_brand")
 
-  override def execute(): Unit = takeAction(options, result)
+  override def execute(): String = takeAction(options, result)
 
   override def explain(): Unit = result.explain(true)
 
