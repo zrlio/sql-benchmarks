@@ -28,20 +28,25 @@ import org.apache.spark.sql.Dataset
   */
 class ReadOnly(val options: ParseOptions) extends SQLTest {
   private val inputFile = options.getInputFiles()(0)
-  private var readDataSet:Dataset[_] = _
+  private var readDataSet:Option[Dataset[_]] = None
   try {
-    readDataSet = spark.read.parquet(inputFile)
+    readDataSet = Some(spark.read.parquet(inputFile))
   } catch {
-    case e:org.apache.spark.sql.AnalysisException => System.err.println("-----\n "
-      + "Hint: Perhaps you specified a TPC-DS directory instead of a file?\n" +
-      "-----\n");
+    case e1:org.apache.spark.sql.AnalysisException =>
+      if(e1.message.contains("Unable to infer schema for Parquet. It must be specified manually.")) {
+        System.err.println("-----\n "
+          + "Hint: Perhaps you specified a TPC-DS directory instead of a file?\n" +
+          "-----\n")
+      }
+      e1.printStackTrace()
+    case t:Throwable => t.printStackTrace()
   }
 
   // we do cache here, because now any action will trigger the whole data set reading
   // even the count().
-  override def execute(): String = takeAction(options, readDataSet.cache())
+  override def execute(): String = takeAction(options, readDataSet.get.cache())
 
-  override def explain(): Unit = readDataSet.explain(true)
+  override def explain(): Unit = readDataSet.get.explain(true)
 
   override def plainExplain(): String = "ReadOnly (with .cache()) test on " + inputFile
 }
