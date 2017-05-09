@@ -27,10 +27,10 @@ class Q65(val options: ParseOptions) extends SQLTest {
   private val suffix=".parquet"
 
   // we first read in the tables
-  private val storeSales = spark.read.parquet(location+"store_sales"+suffix)
-  private val dateDim    = spark.read.parquet(location+"date_dim"+suffix)
-  private val store = spark.read.parquet(location+"store"+suffix)
-  private val item = spark.read.parquet(location+"item"+suffix)
+  private val storeSales = spark.read.parquet(location+"/store_sales"+suffix)
+  private val dateDim    = spark.read.parquet(location+"/date_dim"+suffix)
+  private val store = spark.read.parquet(location+"/store"+suffix)
+  private val item = spark.read.parquet(location+"/item"+suffix)
 
   private val sa1 = storeSales.join(dateDim, storeSales("ss_sold_date_sk") === dateDim("d_date_sk"))
   private val sa2 = sa1.where("d_year == 2001")
