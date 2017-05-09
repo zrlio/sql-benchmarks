@@ -49,10 +49,10 @@ public class ParseOptions {
                 "EquiJoin takes two files, q65 takes a tpc-ds data directory, and readOnly takes a file");
         options.addOption("k", "key", true, "key for EquiJoin, default is IntIndex");
         options.addOption("v", "verbose", false, "verbose");
-        options.addOption("a", "action", true, "action to take. Your options are: \n" +
+        options.addOption("a", "action", true, "action to take. Your options are (important, no space between ','): \n" +
                 " 1. count (default)\n" +
-                " 2. collect, items[int, default: 100] \n" +
-                " 3. save, filename[str, default: /tmp], format[str, default: parquet]  \n");
+                " 2. collect,items[int, default: 100] \n" +
+                " 3. save,filename[str, default: /tmp],format[str, default: parquet]  \n");
 
         // set defaults
         this.test = "readOnly";
