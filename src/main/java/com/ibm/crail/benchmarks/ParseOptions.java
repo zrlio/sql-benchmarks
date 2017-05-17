@@ -28,6 +28,8 @@ public class ParseOptions {
     private String banner;
     private String test;
     private String[] inputFiles;
+    private String[] warmupInputFiles;
+    private boolean doWarmup;
     private String joinKey;
     private Action action;
     private boolean verbose;
@@ -47,6 +49,7 @@ public class ParseOptions {
         options.addOption("t", "test", true, "which test to perform, options are (case insensitive): equiJoin, q65, readOnly ");
         options.addOption("i", "input", true, "comma separated list of input files/directories. " +
                 "EquiJoin takes two files, q65 takes a tpc-ds data directory, and readOnly takes a file");
+        options.addOption("w", "warmupInput", true, "warmup files, same semantics as the -i");
         options.addOption("k", "key", true, "key for EquiJoin, default is IntIndex");
         options.addOption("v", "verbose", false, "verbose");
         options.addOption("a", "action", true, "action to take. Your options are (important, no space between ','): \n" +
@@ -59,6 +62,7 @@ public class ParseOptions {
         this.joinKey = "intKey";
         this.verbose = false;
         this.action = new Count();
+        this.doWarmup = false;
     }
 
     public void show_help() {
@@ -98,6 +102,14 @@ public class ParseOptions {
                 for (String inputFile : this.inputFiles) {
                     inputFile.trim();
                 }
+            }
+            if(cmd.hasOption("w")){
+                // get the value and split it
+                this.warmupInputFiles = cmd.getOptionValue("w").split(",");
+                for (String inputFile : this.warmupInputFiles) {
+                    inputFile.trim();
+                }
+                this.doWarmup = true;
             }
             if(cmd.hasOption("a")){
                 String[] tokens = cmd.getOptionValue("a").split(",");
@@ -158,6 +170,18 @@ public class ParseOptions {
 
     public String[] getInputFiles(){
         return this.inputFiles;
+    }
+
+    public void setInputFiles(String[] input){
+        this.inputFiles = input;
+    }
+
+    public String[] getWarmupInputFiles(){
+        return this.warmupInputFiles;
+    }
+
+    public boolean getDoWarmup(){
+        return this.doWarmup;
     }
 
     public String getJoinKey() {

@@ -25,8 +25,7 @@ import org.apache.spark.sql.{Dataset, SaveMode, SparkSession}
 /**
   * Created by atr on 26.04.17.
   */
-abstract class SQLTest {
-  protected val spark = SparkSession.builder.appName("Spark SQL benchmarks").getOrCreate
+abstract class SQLTest(val spark: SparkSession) {
 
   def takeAction(options: ParseOptions, result: Dataset[_]):String = {
     val action = options.getAction
@@ -50,6 +49,4 @@ abstract class SQLTest {
   def explain()
 
   def plainExplain(): String
-
-  def stop():Unit = spark.stop()
 }

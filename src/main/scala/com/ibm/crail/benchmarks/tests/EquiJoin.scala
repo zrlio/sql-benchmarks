@@ -21,8 +21,9 @@
 package com.ibm.crail.benchmarks.tests
 
 import com.ibm.crail.benchmarks.{ParseOptions, SQLTest}
+import org.apache.spark.sql.SparkSession
 
-class EquiJoin(val options: ParseOptions) extends SQLTest {
+class EquiJoin(val options: ParseOptions, spark:SparkSession) extends SQLTest(spark) {
   private val file1 = options.getInputFiles()(0)
   private val file2 = options.getInputFiles()(1)
   private val f1 = spark.read.parquet(file1)

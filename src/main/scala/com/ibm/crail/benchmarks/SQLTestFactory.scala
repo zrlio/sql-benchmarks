@@ -21,15 +21,16 @@
 package com.ibm.crail.benchmarks
 
 import com.ibm.crail.benchmarks.tests.{EquiJoin, Q65, ReadOnly}
+import org.apache.spark.sql.SparkSession
 
 object SQLTestFactory {
-  def newTestInstance(options: ParseOptions) : SQLTest = {
+  def newTestInstance(options: ParseOptions, spark:SparkSession) : SQLTest = {
     if(options.isTestEquiJoin) {
-      new EquiJoin(options)
+      new EquiJoin(options, spark)
     } else if (options.isTestQ65) {
-      new Q65(options)
+      new Q65(options, spark)
     } else if (options.isTestReadOnly) {
-      new ReadOnly(options)
+      new ReadOnly(options, spark)
     } else {
       throw new Exception("Illegal test name ")
     }

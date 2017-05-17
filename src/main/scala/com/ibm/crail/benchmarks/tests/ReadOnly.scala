@@ -21,12 +21,12 @@
 package com.ibm.crail.benchmarks.tests
 
 import com.ibm.crail.benchmarks.{ParseOptions, SQLTest}
-import org.apache.spark.sql.Dataset
+import org.apache.spark.sql.{Dataset, SparkSession}
 
 /**
   * Created by atr on 05.05.17.
   */
-class ReadOnly(val options: ParseOptions) extends SQLTest {
+class ReadOnly(val options: ParseOptions, spark:SparkSession) extends SQLTest(spark) {
   private val inputFile = options.getInputFiles()(0)
   private var readDataSet:Option[Dataset[_]] = None
   try {
