@@ -20,7 +20,7 @@
  */
 package com.ibm.crail.benchmarks
 
-import com.ibm.crail.benchmarks.tests.{EquiJoin, Q65, ReadOnly}
+import com.ibm.crail.benchmarks.tests.{EquiJoin, Q65String, ReadOnly}
 import org.apache.spark.sql.SparkSession
 
 object SQLTestFactory {
@@ -28,7 +28,7 @@ object SQLTestFactory {
     if(options.isTestEquiJoin) {
       new EquiJoin(options, spark)
     } else if (options.isTestQ65) {
-      new Q65(options, spark)
+      new Q65String(options, spark)
     } else if (options.isTestReadOnly) {
       new ReadOnly(options, spark)
     } else {

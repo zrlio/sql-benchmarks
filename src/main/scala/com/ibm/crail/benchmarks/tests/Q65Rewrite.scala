@@ -23,7 +23,7 @@ package com.ibm.crail.benchmarks.tests
 import com.ibm.crail.benchmarks.{ParseOptions, SQLTest}
 import org.apache.spark.sql.SparkSession
 
-class Q65(val options: ParseOptions, spark:SparkSession) extends SQLTest(spark) {
+class Q65Rewrite(val options: ParseOptions, spark:SparkSession) extends SQLTest(spark) {
   private val location = options.getInputFiles()(0)
   private val suffix=".parquet"
 
@@ -59,5 +59,5 @@ class Q65(val options: ParseOptions, spark:SparkSession) extends SQLTest(spark) 
 
   override def explain(): Unit = result.explain(true)
 
-  override def plainExplain(): String = ("TPC-DS query 65 on " + location)
+  override def plainExplain(): String = ("TPC-DS query 65 (re-write) on " + location)
 }
