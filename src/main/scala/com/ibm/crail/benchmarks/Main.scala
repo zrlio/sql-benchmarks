@@ -39,6 +39,7 @@ object Main {
     if(options.getDoWarmup) {
       /* here we do the trick that we execute the whole test before */
       val warmupOptions = options
+      val saveOriginalInputFIle = options.getInputFiles
       warmupOptions.setInputFiles(options.getWarmupInputFiles)
       /* now we execute the test with warmUp options with the input
       files set to the warm up files.
@@ -60,6 +61,8 @@ object Main {
         sb.append(warmUpTest.explain())
       }
       sb.append("-------------------------------------------------" + "\n")
+      // restore
+      options.setInputFiles(saveOriginalInputFIle)
     }
 
     val test:SQLTest = SQLTestFactory.newTestInstance(options, spark)
