@@ -1,3 +1,23 @@
+/*
+ * Crail SQL Benchmarks
+ *
+ * Author: Animesh Trivedi <atr@zurich.ibm.com>
+ *
+ * Copyright (C) 2017, IBM Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ibm.crail.benchmarks.tests
 
 import com.ibm.crail.benchmarks.{ParseOptions, SQLTest}
@@ -13,7 +33,7 @@ class Q65String(val options: ParseOptions, spark:SparkSession) extends SQLTest(s
   private val dateDim    = spark.read.parquet(location+"/date_dim"+suffix).createOrReplaceTempView("date_dim")
   private val store = spark.read.parquet(location+"/store"+suffix).createOrReplaceTempView("store")
   private val item = spark.read.parquet(location+"/item"+suffix).createOrReplaceTempView("item")
-  //FIXME: format me properly
+  //FIXME: format me properly - copied from rst scala scripts for the TPC-DS experiments
   private val query = "select  s_store_name, i_item_desc, sc.revenue, i_current_price, i_wholesale_cost, i_brand from  " +
     "(select    ss_store_sk,    ss_item_sk,    sum(ss_sales_price) as revenue  from    store_sales    join date_dim " +
     "on (store_sales.ss_sold_date_sk = date_dim.d_date_sk)  where  date_dim.d_year = 2001  group by   ss_store_sk,   " +
