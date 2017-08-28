@@ -26,8 +26,8 @@ case class Count() extends Action {
   override def toString: String = "count"
 }
 
-case class Save(format: String, fileName: String) extends Action {
-  override def toString: String = "save at " + fileName + " in format " + format
+case class Save(fileName: String) extends Action {
+  override def toString: String = "save at " + fileName
 }
 
 case class Collect(items: Int) extends Action {
