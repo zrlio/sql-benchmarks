@@ -33,6 +33,8 @@ public class ParseOptions {
     private String joinKey;
     private Action action;
     private boolean verbose;
+    private String inputFormat;
+    private String outputFormat;
 
     public ParseOptions(){
 
@@ -55,11 +57,15 @@ public class ParseOptions {
         options.addOption("a", "action", true, "action to take. Your options are (important, no space between ','): \n" +
                 " 1. count (default)\n" +
                 " 2. collect,items[int, default: 100] \n" +
-                " 3. save,filename[str, default: /tmp],format[str, default: parquet]  \n");
+                " 3. save,filename[str, default: /tmp]\n");
+        options.addOption("a", "inputFormat", true, " input format (where-ever applicable) default: parquet");
+        options.addOption("b", "outputFormat", true, " output format (where-ever applicable) default: parquet");
 
         // set defaults
         this.test = "readOnly";
         this.joinKey = "intKey";
+        this.inputFormat = "parquet";
+        this.outputFormat = "parquet";
         this.verbose = false;
         this.action = new Count();
         this.doWarmup = false;
@@ -96,6 +102,12 @@ public class ParseOptions {
             if(cmd.hasOption("k")){
                 this.joinKey = cmd.getOptionValue("k").trim();
             }
+            if(cmd.hasOption("a")){
+                this.inputFormat = cmd.getOptionValue("a").trim();
+            }
+            if(cmd.hasOption("b")){
+                this.outputFormat = cmd.getOptionValue("b").trim();
+            }
             if(cmd.hasOption("i")){
                 // get the value and split it
                 this.inputFiles = cmd.getOptionValue("i").split(",");
@@ -128,12 +140,12 @@ public class ParseOptions {
                     this.action = new Collect(items);
                 } else if(tokens[0].compareToIgnoreCase("save") == 0) {
                     String fileName = (tokens.length >= 2) ? tokens[1].trim() : "/tmp";
-                    String format = (tokens.length >= 3) ? tokens[2] : "parquet";
-                    if(format.compareToIgnoreCase("nullio") == 0){
-                        // FIXME: for now we have to expand it
-                        format = "com.ibm.crail.spark.sql.datasources.NullioFileFormat";
-                    }
-                    this.action = new Save(format, fileName);
+                    //String format = (tokens.length >= 3) ? tokens[2] : "parquet";
+                    //if(format.compareToIgnoreCase("nullio") == 0){
+                      //  // FIXME: for now we have to expand it
+                        //format = "com.ibm.crail.spark.sql.datasources.NullioFileFormat";
+                    //}
+                    this.action = new Save(fileName);
                 } else {
                     errorAbort("ERROR: illegal action name : " + tokens[0]);
                 }
@@ -194,5 +206,13 @@ public class ParseOptions {
 
     public boolean getVerbose(){
         return this.verbose;
+    }
+
+    public String getInputFormat(){
+        return this.inputFormat;
+    }
+
+    public String getOutputFormat(){
+        return this.outputFormat;
     }
 }
