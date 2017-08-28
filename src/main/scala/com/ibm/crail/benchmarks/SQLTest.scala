@@ -20,7 +20,7 @@
  */
 package com.ibm.crail.benchmarks
 
-import org.apache.spark.sql.{Dataset, SaveMode, SparkSession}
+import org.apache.spark.sql.{Dataset, Row, SaveMode, SparkSession}
 
 /**
   * Created by atr on 26.04.17.
@@ -34,11 +34,43 @@ abstract class SQLTest(val spark: SparkSession) {
         "collected " + result.limit(items).collect().length + " items"
       }
       case Count() => {
-        "count result " + result.count() + " items "
+        "count result (persist) " + result.persist().count() + " items "
       }
-      case Save(format: String, fileName: String) => {
-        result.write.format(format).mode(SaveMode.Overwrite).save(fileName)
-        ("saved " + fileName + " in format " + format)
+      case Save(fileName: String) => {
+        val fmt = options.getOutputFormat
+        result.write.format(fmt).mode(SaveMode.Overwrite).save(fileName)
+        ("saved " + fileName + " in format " + fmt)
+      }
+      case _ => throw new Exception("Illegal action")
+    }
+  }
+
+  def takeActionArray(options: ParseOptions, result: Array[Dataset[_]]):String = {
+    val action = options.getAction
+    action match {
+      case Collect(items: Int) => {
+        /* we need to iterator over the array and count number of items to be collected */
+        var target:Int = items
+        var i = 0
+        while( target > 0 && i < result.length) {
+          var soFar = result(i).limit(target).collect().length
+          target -= soFar
+          i += 1
+        }
+        /* at this point we have exhausted all counts - just print */
+        "collected " + (items - target) + " items in " + i + " datasets"
+      }
+
+      case Count() => {
+        var count = 0L
+        result.foreach(ds => count+=ds.count())
+        "count result " + count + " items in " + result.length + " datasets"
+      }
+
+      case Save(fileName: String) => {
+        val fmt = options.getOutputFormat
+        result.foreach(ds => ds.write.format(fmt).mode(SaveMode.Append).save(fileName))
+        "saved (appended) " + fileName + " in format " + fmt + " for " + result.length + " datasets "
       }
       case _ => throw new Exception("Illegal action")
     }
