@@ -25,7 +25,7 @@ import org.apache.spark.sql.SparkSession
 
 class Q65Rewrite(val options: ParseOptions, spark:SparkSession) extends SQLTest(spark) {
   private val location = options.getInputFiles()(0)
-  private val suffix=".parquet"
+  private val suffix=""
 
   // we first read in the tables
   private val storeSales = spark.read.parquet(location+"/store_sales"+suffix)
