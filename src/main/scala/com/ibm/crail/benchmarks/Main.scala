@@ -45,7 +45,8 @@ object Main {
       files set to the warm up files.
       We can use the output file
        */
-      val warmUpTest:SQLTest = SQLTestFactory.newTestInstance(warmupOptions, spark)
+      val warningsWarmUp:StringBuilder = new StringBuilder
+      val warmUpTest:SQLTest = SQLTestFactory.newTestInstance(warmupOptions, spark, warningsWarmUp)
       val s = System.nanoTime()
       val warmupResult = warmUpTest.execute()
       val e = System.nanoTime()
@@ -65,7 +66,8 @@ object Main {
       options.setInputFiles(saveOriginalInputFIle)
     }
 
-    val test:SQLTest = SQLTestFactory.newTestInstance(options, spark)
+    val warningsTest:StringBuilder = new StringBuilder
+    val test:SQLTest = SQLTestFactory.newTestInstance(options, spark, warningsTest)
     val s = System.nanoTime()
     val result = test.execute()
     val e = System.nanoTime()

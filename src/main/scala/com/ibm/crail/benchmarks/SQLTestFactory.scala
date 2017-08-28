@@ -24,7 +24,7 @@ import com.ibm.crail.benchmarks.tests.{EquiJoin, Q65String, ReadOnly}
 import org.apache.spark.sql.SparkSession
 
 object SQLTestFactory {
-  def newTestInstance(options: ParseOptions, spark:SparkSession) : SQLTest = {
+  def newTestInstance(options: ParseOptions, spark:SparkSession, warnings:StringBuilder) : SQLTest = {
     if(options.isTestEquiJoin) {
       new EquiJoin(options, spark)
     } else if (options.isTestQ65) {
