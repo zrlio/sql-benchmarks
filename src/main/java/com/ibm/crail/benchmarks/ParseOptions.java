@@ -129,9 +129,9 @@ public class ParseOptions {
                 } else if(tokens[0].compareToIgnoreCase("save") == 0) {
                     String fileName = (tokens.length >= 2) ? tokens[1].trim() : "/tmp";
                     String format = (tokens.length >= 3) ? tokens[2] : "parquet";
-                    if(format.compareToIgnoreCase("Phi") == 0){
+                    if(format.compareToIgnoreCase("nullio") == 0){
                         // FIXME: for now we have to expand it
-                        format = "org.apache.spark.sql.execution.datasources.phi.PhiFileFormat";
+                        format = "com.ibm.crail.spark.sql.datasources.NullioFileFormat";
                     }
                     this.action = new Save(format, fileName);
                 } else {
