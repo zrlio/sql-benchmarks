@@ -22,31 +22,46 @@ package com.ibm.crail.benchmarks.tests
 
 import com.ibm.crail.benchmarks.{ParseOptions, SQLTest}
 import org.apache.spark.sql.{Dataset, SparkSession}
+import org.apache.spark.sql._
 
 /**
   * Created by atr on 05.05.17.
   */
 class ReadOnly(val options: ParseOptions, spark:SparkSession) extends SQLTest(spark) {
-  private val inputFile = options.getInputFiles()(0)
-  private var readDataSet:Option[Dataset[_]] = None
-  try {
-    readDataSet = Some(spark.read.parquet(inputFile))
-  } catch {
-    case e1:org.apache.spark.sql.AnalysisException =>
-      if(e1.message.contains("Unable to infer schema for Parquet. It must be specified manually.")) {
-        System.err.println("-----\n "
-          + "Hint: Perhaps you specified a directory (e.g., TPC-DS directory) instead of a parquet file?\n" +
-          "-----\n")
-      }
-      e1.printStackTrace()
-    case t:Throwable => t.printStackTrace()
+  private val inputfiles = options.getInputFiles()
+  println("Number of input files are : " + inputfiles.length)
+
+  private var readDataSetArr:Array[Dataset[Row]] = new Array[Dataset[Row]](inputfiles.length)
+  var i = 0
+  private val fmt = options.getInputFormat
+  // we first read all of them
+  inputfiles.foreach(in => {
+    readDataSetArr(i) = spark.read.format(fmt).load(in)
+    i+=1
+  })
+
+  // we then make a union of them
+  var finalDataset:Dataset[Row] = readDataSetArr(0)
+  for(i <- 1 until readDataSetArr.length){
+    finalDataset = readDataSetArr(i).union(finalDataset)
   }
 
   // we do cache here, because now any action will trigger the whole data set reading
   // even the count().
-  override def execute(): String = takeAction(options, readDataSet.get.cache())
+  override def execute(): String = {
+    takeAction(options, finalDataset)
+  }
 
-  override def explain(): Unit = readDataSet.get.explain(true)
+// TODO: this needs to be investigated, the performance difference
+//  override def execute(): String = {
+//    takeActionArray(options, readDataSetArr)
+//  }
 
-  override def plainExplain(): String = "ReadOnly (with .cache()) test on " + inputFile
+  override def explain(): Unit = readDataSetArr(0).explain(true)
+
+  override def plainExplain(): String = {
+    var str:String = ""
+    inputfiles.foreach(f=> str+=f+",")
+    "ReadOnly (with .cache()) test on " + inputfiles.length + " files as: " + str
+  }
 }
