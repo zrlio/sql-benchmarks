@@ -23,27 +23,38 @@ mvn -DskipTests -T 1C clean compile assembly:single
   
  ```
  usage: Main
-  -a,--action <arg>        action to take. An action is an operation in Spark that triggers the computation*. 
-                            Your options are:
-                            1. count (default)
-                            2. collect,items[int, default: 100]
-                            3. save,filename[str, default: /tmp],format[str, default: parquet]
-  -h,--help                show help.
-  -i,--input <arg>         comma separated list of input files/directories.
-                            EquiJoin takes two files.
-                            Q65 takes a TPC-DS data directory.
-                            ReadOnly takes one file. 
-  -k,--key <arg>           the join key for the EquiJoin (default: IntIndex)$ 
-  -t,--test <arg>          which test to perform, options are (case insensitive): equiJoin, q65, readOnly  
-  -v,--verbose             verbose
-  -w,--warmupInput <arg>   warmup files, same semantics as the -i
+ usage: Main
+  -a,--action <arg>                  action to take. Your options are
+                                     (important, no space between ','):
+                                     1. count (default)
+                                     2. collect,items[int, default: 100]
+                                     3. save,filename[str, default: /tmp]
+  -h,--help                          show help.
+  -i,--input <arg>                   comma separated list of input
+                                     files/directories. EquiJoin takes two
+                                     files, q65 takes a tpc-ds data
+                                     directory, and readOnly takes a file
+  -if,--inputFormat <arg>            input format (where-ever applicable)
+                                     default: parquet
+  -ifo,--inputFormatOptions <arg>    input format options as
+                                     key0,value0,key1,value1...
+  -k,--key <arg>                     key for EquiJoin, default is IntIndex
+  -of,--outputFormat <arg>           output format (where-ever applicable)
+                                     default: parquet
+  -ofo,--outputFormatOptions <arg>   output format options as
+                                     key0,value0,key1,value1...
+  -t,--test <arg>                    which test to perform, options are
+                                     (case insensitive): equiJoin, q65,
+                                     readOnly
+  -v,--verbose                       verbose
+  -w,--warmupInput <arg>             warmup files, same semantics as the -i
 ```
 
  `*`https://spark.apache.org/docs/latest/programming-guide.html#actions
  
  `$` If you generate data from the parquet generator tool, then its schemas have a column name called `IntIndex` 
    
-`test (-t)` can either execute an EquiJoin (default), readOnly, or the quert 65 (q65) from the TPC-DS test suit. For 
+`test (-t)` can either execute an EquiJoin (default), readOnly, or the query 65 (q65) from the TPC-DS test suit. For 
 EquiJoin, the key to join on is specified by `-k` option. The default is `intKey`. If you generated data using 
 ParquetGenerator, this key should be present. `-i` options set ups the input files. EquiJoin takes two comma separated 
 list of files. Query65 takes a directory where the TPC-DS data is present. ReadOnly test takes one file. 
@@ -62,16 +73,26 @@ semantics are the same as the input files. It is meant to JIT the java code path
 recommend to use different files than the actual input files (-i) for warmup run to avoid any data/metadata caching 
 issues. 
 
+### Input and Output formats and options 
+
+The input format is controller by specifying `-if` parameter. Additional format specific parameters can be passed using
+`-ifo` parameter. The default input format is parquet without any specific options.  
+
+The output format for `-a save` action is controller by specifying `-of` parameter. Additional format specific 
+parameters can be passed using `-ofo` parameter. The default output format is parquet with compression disabled. 
+For example, if you want to enable compression for the save action you can pass `-ofo compression,gzip`. This 
+ will enable `gzip` compression for parquet. 
+ 
 ## Example runs 
 
 ### Executing EquiJoin with save
-Executing join on two tables generated from the ParquetGenerator and save the output as a parquet file at `/data/tmp`.  
-The action here is saving the result.
+Executing join on two tables generated from the ParquetGenerator and save the output as a parquet with snappy compression
+file at `/data/tmp`. The action here is saving the result.
 ```bash
  ./bin/spark-submit -v --num-executors 4 --executor-cores 1 --executor-memory 1G --driver-memory 4G \
  --master local \
  --class com.ibm.crail.benchmarks.Main ./apps/sql-benchmarks-1.0.jar\
-  -a save,/data/tmp,parquet -i /data/sql/f1,/data/sql/f2/
+  -a save,/data/tmp -i /data/sql/f1,/data/sql/f2/ -of parquet -ofo compression,snappy  
 ``` 
 ### Executing query65 with collect
 The action here is collecting the top 105 elements  
