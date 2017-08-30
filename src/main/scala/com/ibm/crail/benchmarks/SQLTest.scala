@@ -36,9 +36,10 @@ abstract class SQLTest(val spark: SparkSession) {
       case Count() => {
         "count result (persist) " + result.persist().count() + " items "
       }
+      //option("compression","none")
       case Save(fileName: String) => {
         val fmt = options.getOutputFormat
-        result.write.format(fmt).mode(SaveMode.Overwrite).save(fileName)
+        result.write.format(fmt).options(options.getOutputFormatOptions).mode(SaveMode.Overwrite).save(fileName)
         ("saved " + fileName + " in format " + fmt)
       }
       case _ => throw new Exception("Illegal action")
@@ -69,7 +70,8 @@ abstract class SQLTest(val spark: SparkSession) {
 
       case Save(fileName: String) => {
         val fmt = options.getOutputFormat
-        result.foreach(ds => ds.write.format(fmt).mode(SaveMode.Append).save(fileName))
+        result.foreach(ds =>
+          ds.write.format(fmt).options(options.getOutputFormatOptions).mode(SaveMode.Overwrite).save(fileName))
         "saved (appended) " + fileName + " in format " + fmt + " for " + result.length + " datasets "
       }
       case _ => throw new Exception("Illegal action")

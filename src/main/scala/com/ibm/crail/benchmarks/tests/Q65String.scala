@@ -29,10 +29,12 @@ import org.apache.spark.sql.SparkSession
 class Q65String(val options: ParseOptions, spark:SparkSession) extends SQLTest(spark) {
   private val location = options.getInputFiles()(0)
   private val suffix=""
-  private val storeSales = spark.read.parquet(location+"/store_sales"+suffix).createOrReplaceTempView("store_sales")
-  private val dateDim    = spark.read.parquet(location+"/date_dim"+suffix).createOrReplaceTempView("date_dim")
-  private val store = spark.read.parquet(location+"/store"+suffix).createOrReplaceTempView("store")
-  private val item = spark.read.parquet(location+"/item"+suffix).createOrReplaceTempView("item")
+
+  private val storeSales = spark.read.format(options.getInputFormat).options(options.getInputFormatOptions).load(location+"/store_sales"+suffix).createOrReplaceTempView("store_sales")
+  private val dateDim = spark.read.format(options.getInputFormat).options(options.getInputFormatOptions).load(location+"/store_sales"+suffix).createOrReplaceTempView("date_dim")
+  private val store = spark.read.format(options.getInputFormat).options(options.getInputFormatOptions).load(location+"/store_sales"+suffix).createOrReplaceTempView("store")
+  private val item = spark.read.format(options.getInputFormat).options(options.getInputFormatOptions).load(location+"/store_sales"+suffix).createOrReplaceTempView("item")
+
   //FIXME: format me properly - copied from rst scala scripts for the TPC-DS experiments
   private val query = "select  s_store_name, i_item_desc, sc.revenue, i_current_price, i_wholesale_cost, i_brand from  " +
     "(select    ss_store_sk,    ss_item_sk,    sum(ss_sales_price) as revenue  from    store_sales    join date_dim " +

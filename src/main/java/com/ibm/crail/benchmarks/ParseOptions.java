@@ -23,6 +23,9 @@ package com.ibm.crail.benchmarks;
 
 import org.apache.commons.cli.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ParseOptions {
     private Options options;
     private String banner;
@@ -35,6 +38,8 @@ public class ParseOptions {
     private boolean verbose;
     private String inputFormat;
     private String outputFormat;
+    private Map<String, String> inputFormatOptions;
+    private Map<String, String> outputFormatOptions;
 
     public ParseOptions(){
 
@@ -58,8 +63,10 @@ public class ParseOptions {
                 " 1. count (default)\n" +
                 " 2. collect,items[int, default: 100] \n" +
                 " 3. save,filename[str, default: /tmp]\n");
-        options.addOption("a", "inputFormat", true, "input format (where-ever applicable) default: parquet");
-        options.addOption("b", "outputFormat", true, "output format (where-ever applicable) default: parquet");
+        options.addOption("if", "inputFormat", true, "input format (where-ever applicable) default: parquet");
+        options.addOption("ifo", "inputFormatOptions", true, "input format options as key0,value0,key1,value1...");
+        options.addOption("of", "outputFormat", true, "output format (where-ever applicable) default: parquet");
+        options.addOption("ofo", "outputFormatOptions", true, "output format options as key0,value0,key1,value1...");
 
         // set defaults
         this.test = "readOnly";
@@ -69,6 +76,12 @@ public class ParseOptions {
         this.verbose = false;
         this.action = new Count();
         this.doWarmup = false;
+
+        this.inputFormatOptions = new HashMap<>(4);
+        this.outputFormatOptions = new HashMap<>(4);
+        /* at this point we set some defaults */
+        // this is for parquet other options are "gzip", "snappy"
+        this.outputFormatOptions.putIfAbsent("compression", "none");
     }
 
     public void show_help() {
@@ -102,12 +115,31 @@ public class ParseOptions {
             if(cmd.hasOption("k")){
                 this.joinKey = cmd.getOptionValue("k").trim();
             }
-            if(cmd.hasOption("a")){
-                this.inputFormat = cmd.getOptionValue("a").trim();
+            if(cmd.hasOption("if")){
+                this.inputFormat = cmd.getOptionValue("if").trim();
             }
-            if(cmd.hasOption("b")){
-                this.outputFormat = cmd.getOptionValue("b").trim();
+            if(cmd.hasOption("of")){
+                this.outputFormat = cmd.getOptionValue("of").trim();
             }
+            if(cmd.hasOption("ofo")){
+                String[] one = cmd.getOptionValue("ofo").trim().split(",");
+                if(one.length % 2 != 0){
+                    errorAbort("Illegal format for outputFormatOptions. Number of parameters " + one.length + " are not even");
+                }
+                for(int i = 0; i < one.length; i+=2){
+                    this.outputFormatOptions.put(one[i].trim(), one[i + 1].trim());
+                }
+            }
+            if(cmd.hasOption("ifo")){
+                String[] one = cmd.getOptionValue("ifo").trim().split(",");
+                if(one.length % 2 != 0){
+                    errorAbort("Illegal format for inputFormatOptions. Number of parameters " + one.length + " are not even");
+                }
+                for(int i = 0; i < one.length; i+=2){
+                    this.inputFormatOptions.put(one[i].trim(), one[i + 1].trim());
+                }
+            }
+
             if(cmd.hasOption("i")){
                 // get the value and split it
                 this.inputFiles = cmd.getOptionValue("i").split(",");
@@ -214,5 +246,13 @@ public class ParseOptions {
 
     public String getOutputFormat(){
         return this.outputFormat;
+    }
+
+    public Map<String, String> getInputFormatOptions(){
+        return this.inputFormatOptions;
+    }
+
+    public Map<String, String> getOutputFormatOptions(){
+        return this.outputFormatOptions;
     }
 }

@@ -36,7 +36,7 @@ class ReadOnly(val options: ParseOptions, spark:SparkSession) extends SQLTest(sp
   var i = 0
   // we first read all of them
   inputfiles.foreach(in => {
-    readDataSetArr(i) = spark.read.format(fmt).load(in)
+    readDataSetArr(i) = spark.read.format(fmt).options(options.getInputFormatOptions).load(in)
     i+=1
   })
 

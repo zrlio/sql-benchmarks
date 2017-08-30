@@ -26,8 +26,8 @@ import org.apache.spark.sql.SparkSession
 class EquiJoin(val options: ParseOptions, spark:SparkSession) extends SQLTest(spark) {
   private val file1 = options.getInputFiles()(0)
   private val file2 = options.getInputFiles()(1)
-  private val f1 = spark.read.parquet(file1)
-  private val f2 = spark.read.parquet(file2)
+  private val f1 = spark.read.format(options.getInputFormat).options(options.getInputFormatOptions).load(file1)
+  private val f2 = spark.read.format(options.getInputFormat).options(options.getInputFormatOptions).load(file2)
   private val key = options.getJoinKey
   private val result = f1.joinWith(f2, f1(key) === f2(key))
 
