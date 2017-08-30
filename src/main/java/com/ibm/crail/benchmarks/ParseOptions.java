@@ -58,8 +58,8 @@ public class ParseOptions {
                 " 1. count (default)\n" +
                 " 2. collect,items[int, default: 100] \n" +
                 " 3. save,filename[str, default: /tmp]\n");
-        options.addOption("a", "inputFormat", true, " input format (where-ever applicable) default: parquet");
-        options.addOption("b", "outputFormat", true, " output format (where-ever applicable) default: parquet");
+        options.addOption("a", "inputFormat", true, "input format (where-ever applicable) default: parquet");
+        options.addOption("b", "outputFormat", true, "output format (where-ever applicable) default: parquet");
 
         // set defaults
         this.test = "readOnly";
