@@ -28,7 +28,7 @@ import org.apache.spark.sql.SparkSession
   */
 class Q65String(val options: ParseOptions, spark:SparkSession) extends SQLTest(spark) {
   private val location = options.getInputFiles()(0)
-  private val suffix=".parquet"
+  private val suffix=""
   private val storeSales = spark.read.parquet(location+"/store_sales"+suffix).createOrReplaceTempView("store_sales")
   private val dateDim    = spark.read.parquet(location+"/date_dim"+suffix).createOrReplaceTempView("date_dim")
   private val store = spark.read.parquet(location+"/store"+suffix).createOrReplaceTempView("store")
