@@ -28,12 +28,12 @@ import org.apache.spark.sql._
   * Created by atr on 05.05.17.
   */
 class ReadOnly(val options: ParseOptions, spark:SparkSession) extends SQLTest(spark) {
+  private val fmt = options.getInputFormat
   private val inputfiles = options.getInputFiles()
-  println("Number of input files are : " + inputfiles.length)
+  //println("Number of input files are : " + inputfiles.length + " with format " + fmt)
 
   private var readDataSetArr:Array[Dataset[Row]] = new Array[Dataset[Row]](inputfiles.length)
   var i = 0
-  private val fmt = options.getInputFormat
   // we first read all of them
   inputfiles.foreach(in => {
     readDataSetArr(i) = spark.read.format(fmt).load(in)
