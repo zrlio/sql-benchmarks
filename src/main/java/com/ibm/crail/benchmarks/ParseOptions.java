@@ -117,9 +117,15 @@ public class ParseOptions {
             }
             if(cmd.hasOption("if")){
                 this.inputFormat = cmd.getOptionValue("if").trim();
+                if(this.inputFormat.compareToIgnoreCase("nullio") == 0){
+                    this.inputFormat = "com.ibm.crail.spark.sql.datasources.NullioFileFormat";
+                }
             }
             if(cmd.hasOption("of")){
                 this.outputFormat = cmd.getOptionValue("of").trim();
+                if(this.outputFormat.compareToIgnoreCase("nullio") == 0){
+                    this.outputFormat = "com.ibm.crail.spark.sql.datasources.NullioFileFormat";
+                }
             }
             if(cmd.hasOption("ofo")){
                 String[] one = cmd.getOptionValue("ofo").trim().split(",");
