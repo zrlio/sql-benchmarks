@@ -30,6 +30,7 @@ public class ParseOptions {
     private Options options;
     private String banner;
     private String test;
+    private int queryNumber;
     private String[] inputFiles;
     private String[] warmupInputFiles;
     private boolean doWarmup;
@@ -53,16 +54,17 @@ public class ParseOptions {
                 "                                                                             ";
         options = new Options();
         options.addOption("h", "help", false, "show help.");
-        options.addOption("t", "test", true, "which test to perform, options are (case insensitive): equiJoin, q65, readOnly ");
+        options.addOption("t", "test", true, "which test to perform, options are (case insensitive): equiJoin, qXX (tpcds queries), tpcds, readOnly ");
         options.addOption("i", "input", true, "comma separated list of input files/directories. " +
-                "EquiJoin takes two files, q65 takes a tpc-ds data directory, and readOnly takes a file");
+                "EquiJoin takes two files, q65 takes a tpc-ds/queries data directory, and readOnly take a file or a directory with files");
         options.addOption("w", "warmupInput", true, "warmup files, same semantics as the -i");
         options.addOption("k", "key", true, "key for EquiJoin, default is IntIndex");
         options.addOption("v", "verbose", false, "verbose");
         options.addOption("a", "action", true, "action to take. Your options are (important, no space between ','): \n" +
                 " 1. count (default)\n" +
                 " 2. collect,items[int, default: 100] \n" +
-                " 3. save,filename[str, default: /tmp]\n");
+                " 3. save,filename[str, default: /tmp]\n" +
+                " 4. noop (only for TPC-DS)\n");
         options.addOption("if", "inputFormat", true, "input format (where-ever applicable) default: parquet");
         options.addOption("ifo", "inputFormatOptions", true, "input format options as key0,value0,key1,value1...");
         options.addOption("of", "outputFormat", true, "output format (where-ever applicable) default: parquet");
@@ -76,6 +78,7 @@ public class ParseOptions {
         this.verbose = false;
         this.action = new Count();
         this.doWarmup = false;
+        this.queryNumber = -1;
 
         this.inputFormatOptions = new HashMap<>(4);
         this.outputFormatOptions = new HashMap<>(4);
@@ -91,8 +94,10 @@ public class ParseOptions {
     }
 
     private void errorAbort(String str) {
-        System.err.println(str);
         show_help();
+        System.err.println("************ ERROR *******************");
+        System.err.println(str);
+        System.err.println("**************************************");
         System.exit(-1);
     }
 
@@ -108,6 +113,13 @@ public class ParseOptions {
             }
             if(cmd.hasOption("t")){
                 this.test = cmd.getOptionValue("t").trim();
+                if(this.test.charAt(0) == 'q'){
+                    // this is specific queries
+                    this.queryNumber = Integer.parseInt(this.test.substring(1, this.test.length()));
+                    if(this.queryNumber < 1 || this.queryNumber > 99){
+                        errorAbort("Valid query numbers are between 0-99 (inclusive). Found: " + this.queryNumber);
+                    }
+                }
             }
             if(cmd.hasOption("v")){
                 this.verbose = true;
@@ -177,12 +189,7 @@ public class ParseOptions {
                     }
                     this.action = new Collect(items);
                 } else if(tokens[0].compareToIgnoreCase("save") == 0) {
-                    String fileName = (tokens.length >= 2) ? tokens[1].trim() : "/tmp";
-                    //String format = (tokens.length >= 3) ? tokens[2] : "parquet";
-                    //if(format.compareToIgnoreCase("nullio") == 0){
-                      //  // FIXME: for now we have to expand it
-                        //format = "com.ibm.crail.spark.sql.datasources.NullioFileFormat";
-                    //}
+                    String fileName = (tokens.length >= 2) ? tokens[1].trim() : "/sql-benchmark-output";
                     this.action = new Save(fileName);
                 } else {
                     errorAbort("ERROR: illegal action name : " + tokens[0]);
@@ -197,7 +204,7 @@ public class ParseOptions {
             errorAbort("ERROR:" + " please specify some input files for the SQL test");
         }
         // check valid test names
-        if(!isTestEquiJoin() && !isTestQ65() && !isTestReadOnly()) {
+        if(!isTestEquiJoin() && !isTestQuery() && !isTestTPCDS() && !isTestReadOnly()) {
             errorAbort("ERROR: illegal test name : " + this.test);
         }
         /* some sanity checks */
@@ -210,8 +217,12 @@ public class ParseOptions {
         return this.test.compareToIgnoreCase("EquiJoin") == 0;
     }
 
-    public boolean isTestQ65(){
-        return this.test.compareToIgnoreCase("q65") == 0;
+    public boolean isTestQuery(){
+        return !(this.queryNumber == -1);
+    }
+
+    public boolean isTestTPCDS(){
+        return (this.test.compareToIgnoreCase("tpcds") == 0);
     }
 
     public boolean isTestReadOnly(){
@@ -260,5 +271,9 @@ public class ParseOptions {
 
     public Map<String, String> getOutputFormatOptions(){
         return this.outputFormatOptions;
+    }
+
+    public int getQueryNumber(){
+        return this.queryNumber;
     }
 }

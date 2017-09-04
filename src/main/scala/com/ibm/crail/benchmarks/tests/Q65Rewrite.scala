@@ -23,6 +23,7 @@ package com.ibm.crail.benchmarks.tests
 import com.ibm.crail.benchmarks.{ParseOptions, SQLTest}
 import org.apache.spark.sql.SparkSession
 
+//TODO: work in progress
 class Q65Rewrite(val options: ParseOptions, spark:SparkSession) extends SQLTest(spark) {
   private val location = options.getInputFiles()(0)
   private val suffix=""

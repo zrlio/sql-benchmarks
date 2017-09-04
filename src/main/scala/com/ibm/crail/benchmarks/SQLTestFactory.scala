@@ -20,15 +20,18 @@
  */
 package com.ibm.crail.benchmarks
 
-import com.ibm.crail.benchmarks.tests.{EquiJoin, Q65String, ReadOnly}
+import com.ibm.crail.benchmarks.tests.tpcds.SingleTPCDSTest
+import com.ibm.crail.benchmarks.tests.{EquiJoin, ReadOnly}
 import org.apache.spark.sql.SparkSession
 
 object SQLTestFactory {
   def newTestInstance(options: ParseOptions, spark:SparkSession, warnings:StringBuilder) : SQLTest = {
     if(options.isTestEquiJoin) {
       new EquiJoin(options, spark)
-    } else if (options.isTestQ65) {
-      new Q65String(options, spark)
+    } else if (options.isTestQuery) {
+      new SingleTPCDSTest(options, spark)
+    } else if (options.isTestTPCDS) {
+      new SingleTPCDSTest(options, spark)
     } else if (options.isTestReadOnly) {
       new ReadOnly(options, spark)
     } else {

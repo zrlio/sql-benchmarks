@@ -34,15 +34,15 @@ abstract class SQLTest(val spark: SparkSession) {
         "collected " + result.limit(items).collect().length + " items"
       }
       case Count() => {
-        "count result (persist) " + result.persist().count() + " items "
+        "count, Dataset.persist().count() " + result.persist().count() + " items "
       }
       //option("compression","none")
       case Save(fileName: String) => {
         val fmt = options.getOutputFormat
         result.write.format(fmt).options(options.getOutputFormatOptions).mode(SaveMode.Overwrite).save(fileName)
-        ("saved " + fileName + " in format " + fmt)
+        "saved " + fileName + " in format " + fmt
       }
-      case _ => throw new Exception("Illegal action")
+      case _ => throw new Exception("Illegal action ")
     }
   }
 
