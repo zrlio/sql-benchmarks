@@ -36,7 +36,7 @@ object TPCDSSetup {
 
   def readAndRegisterTempTables(options:ParseOptions, spark:SparkSession):Unit = {
     items.foreach( tab => {
-      spark.read.format(options.getInputFormat).options(options.getInputFormatOptions).load(options.getInputFiles()(0)+tab).createOrReplaceTempView(tab)
+      spark.read.format(options.getInputFormat).options(options.getInputFormatOptions).load(options.getInputFiles()(0)+"/"+tab).createOrReplaceTempView(tab)
     })
   }
 }
