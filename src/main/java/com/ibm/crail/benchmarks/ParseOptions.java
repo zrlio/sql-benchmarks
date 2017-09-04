@@ -63,8 +63,7 @@ public class ParseOptions {
         options.addOption("a", "action", true, "action to take. Your options are (important, no space between ','): \n" +
                 " 1. count (default)\n" +
                 " 2. collect,items[int, default: 100] \n" +
-                " 3. save,filename[str, default: /tmp]\n" +
-                " 4. noop (only for TPC-DS)\n");
+                " 3. save,filename[str, default: /tmp]");
         options.addOption("if", "inputFormat", true, "input format (where-ever applicable) default: parquet");
         options.addOption("ifo", "inputFormatOptions", true, "input format options as key0,value0,key1,value1...");
         options.addOption("of", "outputFormat", true, "output format (where-ever applicable) default: parquet");
@@ -113,6 +112,10 @@ public class ParseOptions {
             }
             if(cmd.hasOption("t")){
                 this.test = cmd.getOptionValue("t").trim();
+                if(this.test.charAt(0) == 'q'){
+                    /* specific query test */
+                    this.tpcdsQuery = this.test;
+                }
             }
             if(cmd.hasOption("v")){
                 this.verbose = true;
