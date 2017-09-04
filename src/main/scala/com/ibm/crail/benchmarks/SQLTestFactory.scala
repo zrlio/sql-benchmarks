@@ -20,7 +20,7 @@
  */
 package com.ibm.crail.benchmarks
 
-import com.ibm.crail.benchmarks.tests.tpcds.SingleTPCDSTest
+import com.ibm.crail.benchmarks.tests.tpcds.{SingleTPCDSTest, TPCDSTest}
 import com.ibm.crail.benchmarks.tests.{EquiJoin, ReadOnly}
 import org.apache.spark.sql.SparkSession
 
@@ -31,7 +31,7 @@ object SQLTestFactory {
     } else if (options.isTestQuery) {
       new SingleTPCDSTest(options, spark)
     } else if (options.isTestTPCDS) {
-      new SingleTPCDSTest(options, spark)
+      new TPCDSTest(options, spark)
     } else if (options.isTestReadOnly) {
       new ReadOnly(options, spark)
     } else {

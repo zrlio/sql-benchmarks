@@ -78,10 +78,13 @@ object Main {
     sb.append("Result         : " +  result + "\n")
     if(options.getVerbose){
       sb.append("---------------- explain ------------------------\n")
-      sb.append(test.explain())
+      sb.append(test.explain() + "\n")
     }
+    sb.append("---------------- Additional Info ------------------\n")
+    sb.append(test.printAdditionalInformation()+"\n")
     sb.append("-------------------------------------------------\n")
     println(sb.mkString)
+
     spark.stop()
   }
 }

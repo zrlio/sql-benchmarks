@@ -83,4 +83,6 @@ abstract class SQLTest(val spark: SparkSession) {
   def explain()
 
   def plainExplain(): String
+
+  def printAdditionalInformation():String = "AdditionalInformation: None"
 }

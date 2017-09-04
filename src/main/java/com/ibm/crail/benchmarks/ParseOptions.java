@@ -30,7 +30,7 @@ public class ParseOptions {
     private Options options;
     private String banner;
     private String test;
-    private int queryNumber;
+    private String tpcdsQuery;
     private String[] inputFiles;
     private String[] warmupInputFiles;
     private boolean doWarmup;
@@ -54,9 +54,9 @@ public class ParseOptions {
                 "                                                                             ";
         options = new Options();
         options.addOption("h", "help", false, "show help.");
-        options.addOption("t", "test", true, "which test to perform, options are (case insensitive): equiJoin, qXX (tpcds queries), tpcds, readOnly ");
+        options.addOption("t", "test", true, "which test to perform, options are (case insensitive): equiJoin, qXXX(tpcds queries), tpcds, readOnly ");
         options.addOption("i", "input", true, "comma separated list of input files/directories. " +
-                "EquiJoin takes two files, q65 takes a tpc-ds/queries data directory, and readOnly take a file or a directory with files");
+                "EquiJoin takes two files, TPCDS queries takes a tpc-ds data directory, and readOnly take a file or a directory with files");
         options.addOption("w", "warmupInput", true, "warmup files, same semantics as the -i");
         options.addOption("k", "key", true, "key for EquiJoin, default is IntIndex");
         options.addOption("v", "verbose", false, "verbose");
@@ -78,7 +78,7 @@ public class ParseOptions {
         this.verbose = false;
         this.action = new Count();
         this.doWarmup = false;
-        this.queryNumber = -1;
+        this.tpcdsQuery = null;
 
         this.inputFormatOptions = new HashMap<>(4);
         this.outputFormatOptions = new HashMap<>(4);
@@ -113,13 +113,6 @@ public class ParseOptions {
             }
             if(cmd.hasOption("t")){
                 this.test = cmd.getOptionValue("t").trim();
-                if(this.test.charAt(0) == 'q'){
-                    // this is specific queries
-                    this.queryNumber = Integer.parseInt(this.test.substring(1, this.test.length()));
-                    if(this.queryNumber < 1 || this.queryNumber > 99){
-                        errorAbort("Valid query numbers are between 0-99 (inclusive). Found: " + this.queryNumber);
-                    }
-                }
             }
             if(cmd.hasOption("v")){
                 this.verbose = true;
@@ -218,7 +211,7 @@ public class ParseOptions {
     }
 
     public boolean isTestQuery(){
-        return !(this.queryNumber == -1);
+        return !(this.tpcdsQuery == null);
     }
 
     public boolean isTestTPCDS(){
@@ -273,7 +266,7 @@ public class ParseOptions {
         return this.outputFormatOptions;
     }
 
-    public int getQueryNumber(){
-        return this.queryNumber;
+    public String getTPCDSQuery(){
+        return this.tpcdsQuery;
     }
 }
