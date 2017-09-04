@@ -19,11 +19,9 @@ mvn -DskipTests -T 1C clean compile assembly:single
   sql-benchmarks-1.0.jar [OPTIONS]
  ```
  
- Current options are : 
-  
+ Current options are :  
  ```
- usage: Main
- usage: Main
+  usage: Main
   -a,--action <arg>                  action to take. Your options are
                                      (important, no space between ','):
                                      1. count (default)
@@ -32,8 +30,9 @@ mvn -DskipTests -T 1C clean compile assembly:single
   -h,--help                          show help.
   -i,--input <arg>                   comma separated list of input
                                      files/directories. EquiJoin takes two
-                                     files, q65 takes a tpc-ds data
-                                     directory, and readOnly takes a file
+                                     files, TPCDS queries takes a tpc-ds
+                                     data directory, and readOnly take a
+                                     file or a directory with files
   -if,--inputFormat <arg>            input format (where-ever applicable)
                                      default: parquet
   -ifo,--inputFormatOptions <arg>    input format options as
@@ -44,8 +43,8 @@ mvn -DskipTests -T 1C clean compile assembly:single
   -ofo,--outputFormatOptions <arg>   output format options as
                                      key0,value0,key1,value1...
   -t,--test <arg>                    which test to perform, options are
-                                     (case insensitive): equiJoin, q65,
-                                     readOnly
+                                     (case insensitive): equiJoin,
+                                     qXXX(tpcds queries), tpcds, readOnly
   -v,--verbose                       verbose
   -w,--warmupInput <arg>             warmup files, same semantics as the -i
 ```
@@ -54,23 +53,24 @@ mvn -DskipTests -T 1C clean compile assembly:single
  
  `$` If you generate data from the parquet generator tool, then its schemas have a column name called `IntIndex` 
    
-`test (-t)` can either execute an EquiJoin (default), readOnly, or the query 65 (q65) from the TPC-DS test suit. For 
-EquiJoin, the key to join on is specified by `-k` option. The default is `intKey`. If you generated data using 
-ParquetGenerator, this key should be present. `-i` options set ups the input files. EquiJoin takes two comma separated 
-list of files. Query65 takes a directory where the TPC-DS data is present. ReadOnly test takes one file. 
+`test (-t)` can either execute an EquiJoin (default), readOnly, or the whole (tpcds) or a specific query from the 
+TPC-DS test suit. For EquiJoin, the key to join on is specified by `-k` option. The default is `intKey`. If you 
+generated data using ParquetGenerator, this key should be present. `-i` options set ups the input files. EquiJoin 
+takes two comma separated list of files. TPC-DS tests takes the directory locaiton containing dataset. 
+ReadOnly test takes one or more files (with the same schema!). 
 
 `Action (-a)` tells how the `test` should be executed. There are currently three options.  
    * Count: call `count` on the result Dataset RDD. The format for this option is : `-a count`
    * Collect : call `limit(items)` and then `collect` on the result Dataset RDD. To collect 101 items: 
     `-a collect,101`
-   * Save: save the result Dataset RDD to a file in a specific format. The format for this option is : 
-   ` -a save,filename,format` 
+   * Save: save the result Dataset RDD to a file in a specific format (say csv). The format for this option is : 
+   ` -a save,filename -of csv`  
 
 [WARNING: No space between the arguments and commas]
 
-`WarmUp (-w)` does the same action (-a) as intended for the test command (-t) but on different input files. Its
+`WarmUp (-w)` does the same action (-a) as intended for the test command (`-t`) but on different input files. Its
 semantics are the same as the input files. It is meant to JIT the java code path and setup resources, if any. We 
-recommend to use different files than the actual input files (-i) for warmup run to avoid any data/metadata caching 
+recommend to use different files than the actual input files (`-i`) for warm-up run to avoid any data/metadata caching 
 issues. 
 
 ### Input and Output formats and options 
@@ -111,7 +111,18 @@ The action here is collecting the top 105 elements
  --class com.ibm.crail.benchmarks.Main ./apps/sql-benchmarks-1.0.jar \
  -t readOnly -a count -i /data/largeFile.parquet -w /data/sql/warmup.parquet
 ```
-
+#### Executing the whole tpc-ds benchmark with warmup and save output
+ This example is for local Spark execution, and we save the output in the parquet format
+```bash
+./bin/spark-submit --master local  --num-executors 2 --executor-cores 2 --executor-memory 1g \
+--driver-memory 1g --class com.ibm.crail.benchmarks.Main \
+~/sql-benchmarks/target/sql-benchmarks-1.0.jar \
+-t tpcds \
+-i crail://localhost:9060/tpcds/ \
+-a save,crail://localhost:9060/tpcds-output/ \
+-of parquet  \
+-w crail://localhost:9060/warmup-tpcds/
+```
 ## Contributions
 
 PRs are always welcome. Please fork, and make necessary modifications 
