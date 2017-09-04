@@ -38,7 +38,7 @@ class TPCDSTest (val options: ParseOptions, spark:SparkSession) extends SQLTest(
     val sb = new StringBuilder
     i = 0;
     for ((k,v) <- TPCDSQueries.query){
-      sb.append(" query " + k + " took : " + (time(i) / 1000000) + " msec")
+      sb.append(" query " + k + " took : " + (time(i) / 1000000) + " msec\n")
       i+=1
     }
     sb.mkString
