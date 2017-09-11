@@ -20,12 +20,57 @@
  */
 package com.ibm.crail.benchmarks
 
-import org.apache.spark.sql.{Dataset, Row, SaveMode, SparkSession}
+import org.apache.spark.sql.types.StructType
+import org.apache.spark.sql.{Dataset, SaveMode, SparkSession}
 
 /**
   * Created by atr on 26.04.17.
   */
 abstract class SQLTest(val spark: SparkSession) {
+
+  private val toMatch = Array(
+    " ",
+    ",",
+    ";",
+    "{",
+    "}",
+    "(",
+    ")",
+    "\n",
+    "\t",
+    "=")
+  private val renameCol = "renameCol"
+  private var intSuffix = 0
+
+  private def isAValidName(str:String):Boolean = {
+    toMatch.map(f => if(str.contains(f)) Some(true) else None).count(_.isDefined) == 0
+  }
+
+  private def sanitizeColumnNames(df:Dataset[_]):(Dataset[_], Boolean) = {
+    val colNames = df.columns
+    var finalDS = df
+    var reanmed = false
+    colNames.foreach( name => {
+      if(!isAValidName(name)){
+        finalDS = finalDS.withColumnRenamed(name, renameCol+intSuffix)
+        intSuffix+=1
+        reanmed = true
+      }
+    })
+    //System.err.println(" -------------- input ------------- ")
+    //System.err.println(df.printSchema())
+    //System.err.println(" -------------- sanitized input ------------- ")
+    //System.err.println(finalDS.printSchema())
+    (finalDS, reanmed)
+  }
+
+  def schemaToString(sch:StructType):String = {
+    val strB1 = new StringBuilder
+    strB1.append("[ ")
+    sch.foreach(f => strB1.append(f.toString() + " "))
+    strB1.append(" ]")
+    strB1.mkString
+  }
 
   def takeAction(options: ParseOptions, result: Dataset[_]):String = {
     val action = options.getAction
@@ -39,8 +84,19 @@ abstract class SQLTest(val spark: SparkSession) {
       //option("compression","none")
       case Save(fileName: String) => {
         val fmt = options.getOutputFormat
-        result.write.format(fmt).options(options.getOutputFormatOptions).mode(SaveMode.Overwrite).save(fileName)
-        "saved " + fileName + " in format " + fmt
+        val res = sanitizeColumnNames(result)
+        val sanizedResult = res._1
+        val renamed = res._2
+        sanizedResult.write.format(fmt).options(options.getOutputFormatOptions).mode(SaveMode.Overwrite).save(fileName)
+        val resultString = "saved " + fileName + " in format " + fmt
+        val note = if(renamed) {
+          "\n\t\t **NOTE:** column renaming happened because the final dataset contains illegal column names. See below: " +
+          "\n\t\t final dataset columns : " + schemaToString(result.schema) +
+          "\n\t\t renamed dataset columns : " + schemaToString(sanizedResult.schema) + "\n"
+        } else {
+          ""
+        }
+        resultString + note
       }
       case _ => throw new Exception("Illegal action ")
     }
