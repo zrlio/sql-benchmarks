@@ -108,7 +108,7 @@ abstract class SQLTest(val spark: SparkSession) {
     (finalDS, strx)
   }
 
-  def takeAction(options: ParseOptions, result: Dataset[_]):String = {
+  def takeAction(options: ParseOptions, result: Dataset[_], suffix:String=""):String = {
     val action = options.getAction
     action match {
       case Collect(items: Int) => {
@@ -121,7 +121,7 @@ abstract class SQLTest(val spark: SparkSession) {
       case Save(fileName: String) => {
         val fmt = options.getOutputFormat
         val res = sanitizeColumnNames(result)
-        res._1.write.format(fmt).options(options.getOutputFormatOptions).mode(SaveMode.Overwrite).save(fileName)
+        res._1.write.format(fmt).options(options.getOutputFormatOptions).mode(SaveMode.Overwrite).save(fileName+suffix)
         "saved " + fileName + " in format " + fmt + res._2.getOrElse("")
       }
       case _ => throw new Exception("Illegal action ")

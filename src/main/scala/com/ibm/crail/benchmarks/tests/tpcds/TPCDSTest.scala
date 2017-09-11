@@ -24,7 +24,7 @@ class TPCDSTest (val options: ParseOptions, spark:SparkSession) extends SQLTest(
     // notice "until"
     for( i <- 0 until result.length) {
       val s = System.nanoTime()
-      takeAction(options, result(i).df)
+      takeAction(options, result(i).df, "/"+result(i).queryName)
       time(i) = System.nanoTime() - s
       println((i + 1) + "/" + result.length + " executed query : " + result(i).queryName + " on " + options.getInputFiles()(0) + " took " + time(i)/1000000 + " msec ")
     }
