@@ -39,37 +39,73 @@ abstract class SQLTest(val spark: SparkSession) {
     "\n",
     "\t",
     "=")
-  private val renameCol = "renameCol"
+  private val colName = "renameColumn"
   private var intSuffix = 0
+
+  private def getNextColumnName():String = {
+    val s = colName + intSuffix
+    intSuffix+=1
+    s
+  }
 
   private def isAValidName(str:String):Boolean = {
     toMatch.map(f => if(str.contains(f)) Some(true) else None).count(_.isDefined) == 0
   }
 
-  private def sanitizeColumnNames(df:Dataset[_]):(Dataset[_], Boolean) = {
+  private def eliminateIllegalColumnNames(df:Dataset[_]):(Dataset[_], Boolean) = {
     val colNames = df.columns
     var finalDS = df
     var reanmed = false
     colNames.foreach( name => {
       if(!isAValidName(name)){
-        finalDS = finalDS.withColumnRenamed(name, renameCol+intSuffix)
-        intSuffix+=1
+        finalDS = finalDS.withColumnRenamed(name, getNextColumnName())
         reanmed = true
       }
     })
-    //System.err.println(" -------------- input ------------- ")
-    //System.err.println(df.printSchema())
-    //System.err.println(" -------------- sanitized input ------------- ")
-    //System.err.println(finalDS.printSchema())
     (finalDS, reanmed)
   }
 
-  def schemaToString(sch:StructType):String = {
+  private def schemaToString(sch:StructType):String = {
     val strB1 = new StringBuilder
     strB1.append("[ ")
     sch.foreach(f => strB1.append(f.toString() + " "))
     strB1.append(" ]")
     strB1.mkString
+  }
+
+  private def removeDuplicateColumnNames(df:Dataset[_]):(Dataset[_], Boolean) = {
+    val colNames = df.columns
+    val colFrequency = colNames.map( c => {
+      (c, colNames.map( c2 => if(c2.compareTo(c) == 0) Option(1) else None).count(_.isDefined))
+    })
+    val newColNames = colFrequency.map(kv => if(kv._2 == 1) kv._1 else getNextColumnName()).toSeq
+    val finalDs = df.toDF(newColNames: _*)
+    // if we contain frequency > 1
+    val renamed = colFrequency.count(kv => kv._2 > 1) > 0
+    (finalDs, renamed)
+  }
+
+  private def sanitizeColumnNames(input:Dataset[_]):(Dataset[_], Option[String]) = {
+    // first eliminate illegal names
+    val step1 = eliminateIllegalColumnNames(input)
+    // rename duplicates
+    val step2 = removeDuplicateColumnNames(step1._1)
+    val finalDS = step2._1
+    val sb = new StringBuilder()
+    if(step1._2) {
+      sb.append("\n\t\t **NOTE:** column renaming happened because the result dataset contains illegal column names.")
+    }
+    if(step2._2){
+      sb.append("\n\t\t **NOTE:** column renaming happened because the result dataset contains duplicate column names.")
+    }
+    val strx = if(step1._2 || step2._2) {
+      sb.append("\n\t\t result dataset columns : " + schemaToString(input.schema) +
+        "\n\t\t clean result dataset columns : " + schemaToString(finalDS.schema) + "\n")
+      Some(sb.mkString)
+    } else {
+      None
+    }
+    (finalDS, strx)
   }
 
   def takeAction(options: ParseOptions, result: Dataset[_]):String = {
@@ -85,18 +121,8 @@ abstract class SQLTest(val spark: SparkSession) {
       case Save(fileName: String) => {
         val fmt = options.getOutputFormat
         val res = sanitizeColumnNames(result)
-        val sanizedResult = res._1
-        val renamed = res._2
-        sanizedResult.write.format(fmt).options(options.getOutputFormatOptions).mode(SaveMode.Overwrite).save(fileName)
-        val resultString = "saved " + fileName + " in format " + fmt
-        val note = if(renamed) {
-          "\n\t\t **NOTE:** column renaming happened because the final dataset contains illegal column names. See below: " +
-          "\n\t\t final dataset columns : " + schemaToString(result.schema) +
-          "\n\t\t renamed dataset columns : " + schemaToString(sanizedResult.schema) + "\n"
-        } else {
-          ""
-        }
-        resultString + note
+        res._1.write.format(fmt).options(options.getOutputFormatOptions).mode(SaveMode.Overwrite).save(fileName)
+        "saved " + fileName + " in format " + fmt + res._2.getOrElse("")
       }
       case _ => throw new Exception("Illegal action ")
     }
