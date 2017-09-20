@@ -31,5 +31,9 @@ case class Save(fileName: String) extends Action {
 }
 
 case class Collect(items: Int) extends Action {
-  override def toString: String = "collect(" + items + ") "
+  override def toString: String = "collect(" + items + ")"
+}
+
+case class Noop() extends Action {
+  override def toString: String = "No-Op (no explicit action was necessary)"
 }

@@ -21,7 +21,7 @@
 package com.ibm.crail.benchmarks
 
 import com.ibm.crail.benchmarks.tests.tpcds.{SingleTPCDSTest, TPCDSTest}
-import com.ibm.crail.benchmarks.tests.{EquiJoin, ReadOnly}
+import com.ibm.crail.benchmarks.tests.{EquiJoin, PageRank, ReadOnly}
 import org.apache.spark.sql.SparkSession
 
 object SQLTestFactory {
@@ -34,6 +34,8 @@ object SQLTestFactory {
       new TPCDSTest(options, spark)
     } else if (options.isTestReadOnly) {
       new ReadOnly(options, spark)
+    } else if (options.isTestPageRank) {
+      new PageRank(options, spark)
     } else {
       throw new Exception("Illegal test name ")
     }

@@ -41,6 +41,7 @@ public class ParseOptions {
     private String outputFormat;
     private Map<String, String> inputFormatOptions;
     private Map<String, String> outputFormatOptions;
+    private int pageRankIterations = 8;
 
     public ParseOptions(){
 
@@ -68,6 +69,7 @@ public class ParseOptions {
         options.addOption("ifo", "inputFormatOptions", true, "input format options as key0,value0,key1,value1...");
         options.addOption("of", "outputFormat", true, "output format (where-ever applicable) default: parquet");
         options.addOption("ofo", "outputFormatOptions", true, "output format options as key0,value0,key1,value1...");
+        options.addOption("gi", "graphPRIterations", true, "number of iteration for the PageRank algorithm, default " + this.pageRankIterations);
 
         // set defaults
         this.test = "readOnly";
@@ -116,6 +118,13 @@ public class ParseOptions {
                     /* specific query test */
                     this.tpcdsQuery = this.test;
                 }
+                if(this.isTestPageRank()){
+                    /* for page rank, we have no op */
+                    this.action = new Noop();
+                }
+            }
+            if(cmd.hasOption("gi")){
+                this.pageRankIterations = Integer.parseInt(cmd.getOptionValue("gi").trim());
             }
             if(cmd.hasOption("v")){
                 this.verbose = true;
@@ -200,7 +209,7 @@ public class ParseOptions {
             errorAbort("ERROR:" + " please specify some input files for the SQL test");
         }
         // check valid test names
-        if(!isTestEquiJoin() && !isTestQuery() && !isTestTPCDS() && !isTestReadOnly()) {
+        if(!isTestEquiJoin() && !isTestQuery() && !isTestTPCDS() && !isTestReadOnly() && !isTestPageRank()) {
             errorAbort("ERROR: illegal test name : " + this.test);
         }
         /* some sanity checks */
@@ -223,6 +232,10 @@ public class ParseOptions {
 
     public boolean isTestReadOnly(){
         return this.test.compareToIgnoreCase("readOnly") == 0;
+    }
+
+    public boolean isTestPageRank(){
+        return this.test.compareToIgnoreCase("pagerank") == 0;
     }
 
     public String[] getInputFiles(){
@@ -271,5 +284,8 @@ public class ParseOptions {
 
     public String getTPCDSQuery(){
         return this.tpcdsQuery;
+    }
+    public int getPageRankIterations(){
+        return this.pageRankIterations;
     }
 }

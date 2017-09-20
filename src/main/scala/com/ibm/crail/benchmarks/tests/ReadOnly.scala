@@ -21,8 +21,7 @@
 package com.ibm.crail.benchmarks.tests
 
 import com.ibm.crail.benchmarks.{ParseOptions, SQLTest}
-import org.apache.spark.sql.{Dataset, SparkSession}
-import org.apache.spark.sql._
+import org.apache.spark.sql.{Dataset, SparkSession, _}
 
 /**
   * Created by atr on 05.05.17.

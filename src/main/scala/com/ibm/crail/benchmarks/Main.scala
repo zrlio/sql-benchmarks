@@ -81,7 +81,7 @@ object Main {
       sb.append(test.explain() + "\n")
     }
     sb.append("---------------- Additional Info ------------------\n")
-    sb.append(test.printAdditionalInformation()+"\n")
+    sb.append(test.printAdditionalInformation())
     sb.append("-------------------------------------------------\n")
     println(sb.mkString)
 
