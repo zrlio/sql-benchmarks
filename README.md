@@ -22,31 +22,33 @@ mvn -DskipTests -T 1C clean compile assembly:single
  Current options are :  
  ```
   usage: Main
-  -a,--action <arg>                  action to take. Your options are
-                                     (important, no space between ','):
-                                     1. count (default)
-                                     2. collect,items[int, default: 100]
-                                     3. save,filename[str, default: /tmp]
-  -h,--help                          show help.
-  -i,--input <arg>                   comma separated list of input
-                                     files/directories. EquiJoin takes two
-                                     files, TPCDS queries takes a tpc-ds
-                                     data directory, and readOnly take a
-                                     file or a directory with files
-  -if,--inputFormat <arg>            input format (where-ever applicable)
-                                     default: parquet
-  -ifo,--inputFormatOptions <arg>    input format options as
-                                     key0,value0,key1,value1...
-  -k,--key <arg>                     key for EquiJoin, default is IntIndex
-  -of,--outputFormat <arg>           output format (where-ever applicable)
-                                     default: parquet
-  -ofo,--outputFormatOptions <arg>   output format options as
-                                     key0,value0,key1,value1...
-  -t,--test <arg>                    which test to perform, options are
-                                     (case insensitive): equiJoin,
-                                     qXXX(tpcds queries), tpcds, readOnly
-  -v,--verbose                       verbose
-  -w,--warmupInput <arg>             warmup files, same semantics as the -i
+   -a,--action <arg>                  action to take. Your options are
+                                      (important, no space between ','):
+                                      1. count (default)
+                                      2. collect,items[int, default: 100]
+                                      3. save,filename[str, default: /tmp]
+   -gi,--graphPRIterations <arg>      number of iteration for the PageRank
+                                      algorithm, default 8
+   -h,--help                          show help.
+   -i,--input <arg>                   comma separated list of input
+                                      files/directories. EquiJoin takes two
+                                      files, TPCDS queries takes a tpc-ds
+                                      data directory, and readOnly take a
+                                      file or a directory with files
+   -if,--inputFormat <arg>            input format (where-ever applicable)
+                                      default: parquet
+   -ifo,--inputFormatOptions <arg>    input format options as
+                                      key0,value0,key1,value1...
+   -k,--key <arg>                     key for EquiJoin, default is IntIndex
+   -of,--outputFormat <arg>           output format (where-ever applicable)
+                                      default: parquet
+   -ofo,--outputFormatOptions <arg>   output format options as
+                                      key0,value0,key1,value1...
+   -t,--test <arg>                    which test to perform, options are
+                                      (case insensitive): equiJoin,
+                                      qXXX(tpcds queries), tpcds, readOnly
+   -v,--verbose                       verbose
+   -w,--warmupInput <arg>             warmup files, same semantics as the -i
 ```
 
  `*`https://spark.apache.org/docs/latest/programming-guide.html#actions
@@ -123,6 +125,30 @@ The action here is collecting the top 105 elements
 -of parquet  \
 -w crail://localhost:9060/warmup-tpcds/
 ```
+
+#### Running 32 iteration of pagerank on an input graph 
+```bash
+./bin/spark-submit -v --num-executors 1 --executor-cores 2 --executor-memory 1g --driver-memory 1g \
+--driver-cores 2 --master local \
+--class com.ibm.crail.benchmarks.Main \
+~/jars/sql-benchmarks-1.0.jar \
+-t pagerank -gi 2 -i /soc-LiveJournal1.txt
+```
+
+output as 
+
+```
+
+-------------------------------------------------
+Test           : PageRank 2 iterations on /soc-LiveJournal1.txt
+Action         : No-Op (no explicit action was necessary)
+Execution time : 18563 msec
+Result         : Ran PageRank 2 iterations /soc-LiveJournal1.txt
+---------------- Additional Info ------------------
+Graph load time: 18643 msec
+-------------------------------------------------
+```
+
 ## Contributions
 
 PRs are always welcome. Please fork, and make necessary modifications 
