@@ -1,6 +1,9 @@
 # Spark SQL Benchmarks
 A set of Spark SQL benchmarks for humans. 
 
+**Updates**   
+   * September 20, 2017: Update to Spark 2.2 and added PageRank support
+   
 ## How to build 
 ```bash
 mvn -DskipTests -T 1C install
