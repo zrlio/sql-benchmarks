@@ -40,7 +40,14 @@ object Main {
       /* here we do the trick that we execute the whole test before */
       val warmupOptions = options
       val saveOriginalInputFIle = options.getInputFiles
+      /* we need to modify the output file for the warm up */
+      val oldAction = options.getAction
+      val newAction = oldAction match {
+        case s:Save => Save(s.fileName+"warmup")
+        case a:Action => a
+      }
       warmupOptions.setInputFiles(options.getWarmupInputFiles)
+      warmupOptions.setAction(newAction)
       /* now we execute the test with warmUp options with the input
       files set to the warm up files.
       We can use the output file
@@ -64,6 +71,7 @@ object Main {
       sb.append("-------------------------------------------------" + "\n")
       // restore
       options.setInputFiles(saveOriginalInputFIle)
+      options.setAction(oldAction)
     }
 
     val warningsTest:StringBuilder = new StringBuilder

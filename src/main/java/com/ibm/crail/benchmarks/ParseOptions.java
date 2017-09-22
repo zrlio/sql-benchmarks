@@ -270,6 +270,10 @@ public class ParseOptions {
         return this.action;
     }
 
+    public void setAction(Action act){
+        this.action = act;
+    }
+
     public boolean getVerbose(){
         return this.verbose;
     }

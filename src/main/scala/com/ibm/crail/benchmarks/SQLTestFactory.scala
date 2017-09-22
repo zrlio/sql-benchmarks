@@ -38,6 +38,7 @@ object SQLTestFactory {
       new PageRank(options, spark)
     } else if (options.isTestPaquetReading) {
       val item = ParquetTest.process(options.getInputFiles)
+      println(" %%%%%%%%%%%%% " + item._1.size + " items ")
       new ParquetTest(item, spark)
     } else if (options.isTestSFFReading) {
       val item = ParquetTest.process(options.getInputFiles)
