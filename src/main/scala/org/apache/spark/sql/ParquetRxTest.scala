@@ -19,7 +19,15 @@ object ParquetTest {
     val fname = path.getName()
     fname(0) != '_' && fname(0) != '.'
   }
-  def process(fileName:String):(List[String], Long) = {
+
+  def process(fileNames:Array[String]):(List[String], Long) = {
+    fileNames.map( p => {
+      println(" processing " + p)
+      _process(p)
+    }).reduce((i1, i2) => (i1._1 ++ i2._1, i1._2+i2._2))
+  }
+
+  def _process(fileName:String):(List[String], Long) = {
     val path = new Path(fileName)
     val conf = new Configuration()
     val fileSystem = path.getFileSystem(conf)

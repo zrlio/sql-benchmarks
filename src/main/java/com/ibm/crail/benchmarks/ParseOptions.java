@@ -209,7 +209,7 @@ public class ParseOptions {
             errorAbort("ERROR:" + " please specify some input files for the SQL test");
         }
         // check valid test names
-        if(!isTestEquiJoin() && !isTestQuery() && !isTestTPCDS() && !isTestReadOnly() && !isTestPageRank() && !isTestPaquetReading()) {
+        if(!isTestEquiJoin() && !isTestQuery() && !isTestTPCDS() && !isTestReadOnly() && !isTestPageRank() && !isTestPaquetReading() && !isTestSFFReading()) {
             errorAbort("ERROR: illegal test name : " + this.test);
         }
         /* some sanity checks */
@@ -240,6 +240,10 @@ public class ParseOptions {
 
     public boolean isTestPaquetReading(){
         return this.test.compareToIgnoreCase("parquetreading") == 0;
+    }
+
+    public boolean isTestSFFReading(){
+        return this.test.compareToIgnoreCase("sffreading") == 0;
     }
 
     public String[] getInputFiles(){
