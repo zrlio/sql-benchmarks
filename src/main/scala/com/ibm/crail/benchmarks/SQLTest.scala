@@ -26,7 +26,7 @@ import org.apache.spark.sql.{Dataset, SaveMode, SparkSession}
 /**
   * Created by atr on 26.04.17.
   */
-abstract class SQLTest(val spark: SparkSession) {
+abstract class SQLTest(val spark: SparkSession) extends Serializable {
 
   private val toMatch = Array(
     " ",
@@ -166,5 +166,5 @@ abstract class SQLTest(val spark: SparkSession) {
 
   def plainExplain(): String
 
-  def printAdditionalInformation():String = "AdditionalInformation: None"
+  def printAdditionalInformation():String = "AdditionalInformation: None\n"
 }

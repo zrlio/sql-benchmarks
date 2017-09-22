@@ -22,7 +22,7 @@ package com.ibm.crail.benchmarks
 
 import com.ibm.crail.benchmarks.tests.tpcds.{SingleTPCDSTest, TPCDSTest}
 import com.ibm.crail.benchmarks.tests.{EquiJoin, PageRank, ReadOnly}
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{ParquetTest, SparkSession}
 
 object SQLTestFactory {
   def newTestInstance(options: ParseOptions, spark:SparkSession, warnings:StringBuilder) : SQLTest = {
@@ -36,6 +36,9 @@ object SQLTestFactory {
       new ReadOnly(options, spark)
     } else if (options.isTestPageRank) {
       new PageRank(options, spark)
+    } else if (options.isTestPaquetReading) {
+      val item = ParquetTest.process(options.getInputFiles()(0))
+      new ParquetTest(item, spark)
     } else {
       throw new Exception("Illegal test name ")
     }
