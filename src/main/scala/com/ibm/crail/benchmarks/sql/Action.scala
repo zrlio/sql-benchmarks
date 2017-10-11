@@ -18,7 +18,7 @@
  * limitations under the License.
  *
  */
-package com.ibm.crail.benchmarks
+package com.ibm.crail.benchmarks.sql
 
 abstract class Action
 

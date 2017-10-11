@@ -21,6 +21,10 @@
 
 package com.ibm.crail.benchmarks;
 
+import com.ibm.crail.benchmarks.sql.Action;
+import com.ibm.crail.benchmarks.sql.Collect;
+import com.ibm.crail.benchmarks.sql.Count;
+import com.ibm.crail.benchmarks.sql.Save;
 import org.apache.commons.cli.*;
 
 import java.util.HashMap;
