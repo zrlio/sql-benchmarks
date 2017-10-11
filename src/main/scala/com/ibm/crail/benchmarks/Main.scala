@@ -29,19 +29,19 @@ object Main {
 
   def foo(x : Array[String]) = x.foldLeft(" ")((a,b) => a + b)
 
-  def getTestOptions(testcase:String):TestOptions = {
-    if(testcase.compareToIgnoreCase("SQL") == 0){
+  def getTestOptions(subsystem:String):TestOptions = {
+    if(subsystem.compareToIgnoreCase("SQL") == 0){
       new SQLOptions()
-    } else if(testcase.compareToIgnoreCase("Graphx") == 0) {
+    } else if(subsystem.compareToIgnoreCase("Graphx") == 0) {
       new GraphXOptions()
-    } else if (testcase.compareToIgnoreCase("FIO") == 0) {
+    } else if (subsystem.compareToIgnoreCase("FIO") == 0) {
       new FIOOptions()
     } else {
-      throw new Exception("Illegal test case (-c) : " + testcase)
+      throw new Exception("Illegal subsystem (-s) : " + subsystem)
     }
   }
 
-  def getTest(testOption:TestOptions, spark:SparkSession):BaseTest = {
+  def getSubsystemTest(testOption:TestOptions, spark:SparkSession):BaseTest = {
     testOption match {
       case gx:GraphXOptions => GraphXTestFactory.getTestObject(gx, spark)
       case sx:SQLOptions => SQLTestFactory.getTestObject(sx, spark)
@@ -53,17 +53,17 @@ object Main {
   def main(args : Array[String]) {
     println("concat arguments to the program = " + foo(args))
     val sb:StringBuilder = new StringBuilder
-    val x = new MainOptions
-    val testArgs = x.parseMainOptions(args)
-    val testOptions = getTestOptions(x.getClassOfTest)
-    testOptions.parse(testArgs)
+    val mainOptions = new MainOptions
+    val subsystemArgs = mainOptions.parseMainOptions(args)
+    val subsystemOptions = getTestOptions(mainOptions.getSubsystem)
+    subsystemOptions.parse(subsystemArgs)
     val spark = SparkSession.builder.appName("Swiss Spark benchmarks").getOrCreate
 
     /* now we have everything setup */
-    if(testOptions.withWarmup()){
+    if(subsystemOptions.withWarmup()){
       /* here we do the trick that we execute the whole test before */
-      testOptions.setWarmupConfig()
-      val warmUpTest = getTest(testOptions, spark)
+      subsystemOptions.setWarmupConfig()
+      val warmUpTest = getSubsystemTest(subsystemOptions, spark)
       val s = System.nanoTime()
       val warmupResult = warmUpTest.execute()
       val e = System.nanoTime()
@@ -75,10 +75,10 @@ object Main {
       sb.append("WarmUp Result         : " +  warmupResult + "\n")
       sb.append("-------------------------------------------------" + "\n")
       // restore
-      testOptions.restoreInputConfig()
+      subsystemOptions.restoreInputConfig()
     }
 
-    val test = getTest(testOptions, spark)
+    val test = getSubsystemTest(subsystemOptions, spark)
     val s = System.nanoTime()
     val result = test.execute()
     val e = System.nanoTime()

@@ -87,8 +87,6 @@ public class SQLOptions extends TestOptions {
     @Override
     public void parse(String[] args) {
         if (args != null) {
-
-
             CommandLineParser parser = new GnuParser();
             CommandLine cmd = null;
             try {
@@ -214,7 +212,7 @@ public class SQLOptions extends TestOptions {
 
     @Override
     public boolean withWarmup() {
-        return false;
+        return this.doWarmup;
     }
 
     public boolean isTestEquiJoin(){
@@ -237,28 +235,12 @@ public class SQLOptions extends TestOptions {
         return this.inputFiles;
     }
 
-    public void setInputFiles(String[] input){
-        this.inputFiles = input;
-    }
-
-    public String[] getWarmupInputFiles(){
-        return this.warmupInputFiles;
-    }
-
-    public boolean getDoWarmup(){
-        return this.doWarmup;
-    }
-
     public String getJoinKey() {
         return this.joinKey;
     }
 
     public Action getAction(){
         return this.action;
-    }
-
-    public void setAction(Action act){
-        this.action = act;
     }
 
     public boolean getVerbose(){

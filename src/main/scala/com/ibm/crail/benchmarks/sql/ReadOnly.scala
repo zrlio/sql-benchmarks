@@ -19,10 +19,9 @@
  *
  */
 
-package com.ibm.crail.benchmarks.tests
+package com.ibm.crail.benchmarks.sql
 
 import com.ibm.crail.benchmarks.SQLOptions
-import com.ibm.crail.benchmarks.sql.SQLTest
 import org.apache.spark.sql.{Dataset, SparkSession, _}
 
 /**

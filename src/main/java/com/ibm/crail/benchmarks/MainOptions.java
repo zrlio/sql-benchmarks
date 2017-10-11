@@ -29,7 +29,7 @@ import org.apache.commons.cli.*;
 public class MainOptions {
     private Options options;
     private String banner;
-    private String classOfTest;
+    private String subsystem;
     private boolean verbose;
 
     public MainOptions(){
@@ -44,11 +44,11 @@ public class MainOptions {
                 "                                                                             ";
         options = new Options();
         options.addOption("h", "help", false, "show help.");
-        options.addOption("c", "class", true, "which class of tests to perform, options are: SQL, GraphX, FIO (case insensitive)");
+        options.addOption("s", "subsystem", true, "which subsystem of tests to perform, options are: SQL, GraphX, FIO (case insensitive)");
         options.addOption("v", "verbose", false, "verbose");
 
         // set defaults
-        this.classOfTest = "SQL";
+        this.subsystem = "SQL";
         this.verbose = false;
     }
 
@@ -60,7 +60,7 @@ public class MainOptions {
 
     private void errorAbort(String str) {
         show_help();
-        System.err.println("************ ERROR *******************");
+        System.err.println("************ ERROR in " + this.getClass().getCanonicalName() + "  *******************");
         System.err.println(str);
         System.err.println("**************************************");
         System.exit(-1);
@@ -109,8 +109,8 @@ public class MainOptions {
                 show_help();
                 System.exit(0);
             }
-            if (cmd.hasOption("c")) {
-                this.classOfTest = cmd.getOptionValue("c").trim();
+            if (cmd.hasOption("s")) {
+                this.subsystem = cmd.getOptionValue("s").trim();
             }
 
         } catch (ParseException e) {
@@ -119,7 +119,7 @@ public class MainOptions {
         return returnArgs;
     }
 
-    public String getClassOfTest() {
-        return this.classOfTest;
+    public String getSubsystem() {
+        return this.subsystem;
     }
 }
