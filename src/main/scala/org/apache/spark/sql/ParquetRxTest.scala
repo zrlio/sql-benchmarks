@@ -1,6 +1,6 @@
 package org.apache.spark.sql
 
-import com.ibm.crail.benchmarks.{ParseOptions, SQLTest}
+import com.ibm.crail.benchmarks.sql.SQLTest
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileStatus, Path}
 import org.apache.spark.sql.catalyst.InternalRow
@@ -9,6 +9,7 @@ import org.apache.spark.sql.execution.AtrGeneratedIterator
 import org.apache.spark.sql.execution.datasources.RecordReaderIterator
 import org.apache.spark.sql.execution.datasources.parquet.VectorizedParquetRecordReader
 import org.apache.spark.sql.execution.metric.SQLMetric
+
 import scala.collection.JavaConverters._
 
 /**

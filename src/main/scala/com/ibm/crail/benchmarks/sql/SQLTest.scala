@@ -18,15 +18,16 @@
  * limitations under the License.
  *
  */
-package com.ibm.crail.benchmarks
+package com.ibm.crail.benchmarks.sql
 
+import com.ibm.crail.benchmarks._
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{Dataset, SaveMode, SparkSession}
 
 /**
   * Created by atr on 26.04.17.
   */
-abstract class SQLTest(val spark: SparkSession) extends Serializable {
+abstract class SQLTest(val spark: SparkSession) extends Serializable with BaseTest {
 
   private val toMatch = Array(
     " ",
@@ -108,7 +109,7 @@ abstract class SQLTest(val spark: SparkSession) extends Serializable {
     (finalDS, strx)
   }
 
-  def takeAction(options: ParseOptions, result: Dataset[_], suffix:String=""):String = {
+  def takeAction(options: SQLOptions, result: Dataset[_], suffix:String=""):String = {
     val action = options.getAction
     action match {
       case Collect(items: Int) => {
@@ -128,7 +129,7 @@ abstract class SQLTest(val spark: SparkSession) extends Serializable {
     }
   }
 
-  def takeActionArray(options: ParseOptions, result: Array[Dataset[_]]):String = {
+  def takeActionArray(options: SQLOptions, result: Array[Dataset[_]]):String = {
     val action = options.getAction
     action match {
       case Collect(items: Int) => {
@@ -159,12 +160,4 @@ abstract class SQLTest(val spark: SparkSession) extends Serializable {
       case _ => throw new Exception("Illegal action")
     }
   }
-
-  def execute():String
-
-  def explain()
-
-  def plainExplain(): String
-
-  def printAdditionalInformation():String = "AdditionalInformation: None\n"
 }

@@ -1,5 +1,5 @@
 /*
- * Crail SQL Benchmarks
+ * Spark Benchmarks
  *
  * Author: Animesh Trivedi <atr@zurich.ibm.com>
  *
@@ -18,40 +18,34 @@
  * limitations under the License.
  *
  */
+package com.ibm.crail.benchmarks.graphx
 
-package com.ibm.crail.benchmarks.tests
-
-import com.ibm.crail.benchmarks.{Action, Noop, ParseOptions, SQLTest}
+import com.ibm.crail.benchmarks.GraphXOptions
 import org.apache.spark.graphx.GraphLoader
 import org.apache.spark.sql.SparkSession
 
 /**
-  * Created by atr on 20.09.17.
+  * Created by atr on 11.10.17.
   */
-class PageRank (val options: ParseOptions, spark:SparkSession) extends SQLTest(spark) {
+class PageRankTest(spark:SparkSession, options: GraphXOptions) extends GraphXTest {
   /* we got the input file, we then load it */
   private val start = System.nanoTime()
-  private val graph = GraphLoader.edgeListFile(spark.sparkContext, options.getInputFiles()(0)).cache()
+  private val graph = GraphLoader.edgeListFile(spark.sparkContext, options.getGraphFile).cache()
   private val end = System.nanoTime()
 
   override def execute(): String = {
     /* we don't have to take any action from the datasets */
     org.apache.spark.graphx.lib.PageRank.run(this.graph, options.getPageRankIterations)
-    "Ran PageRank " + options.getPageRankIterations + " iterations on " + options.getInputFiles()(0)
+    "Ran PageRank " + options.getPageRankIterations + " iterations on " + options.getGraphFile
   }
 
   override def explain(): Unit = println(plainExplain())
 
-  override def plainExplain(): String = "PageRank " + options.getPageRankIterations + " iterations on " + options.getInputFiles()(0)
+  override def plainExplain(): String = "PageRank " + options.getPageRankIterations + " iterations on " + options.getGraphFile
 
   override def printAdditionalInformation():String = {
     val sb = new StringBuilder()
     sb.append("Graph load time: " + (end - start)/1000000 + " msec\n")
-    val str = options.getAction match {
-      case noop:Noop => ""
-      case a:Action => "Warning: action " + a.toString + " was ignored. PageRank does not need any explicit action.\n"
-    }
-    sb.append(str)
     sb.mkString
   }
 }

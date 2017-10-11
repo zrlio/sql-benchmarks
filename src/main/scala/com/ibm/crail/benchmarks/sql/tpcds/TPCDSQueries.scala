@@ -1,5 +1,5 @@
 /*
- * Crail SQL Benchmarks
+ * Spark Benchmarks
  *
  * Author: Animesh Trivedi <atr@zurich.ibm.com>
  *
@@ -19,7 +19,7 @@
  *
  */
 
-package com.ibm.crail.benchmarks.tests.tpcds
+package com.ibm.crail.benchmarks.sql.tpcds
 
 /**
   * Created by atr on 04.09.17.

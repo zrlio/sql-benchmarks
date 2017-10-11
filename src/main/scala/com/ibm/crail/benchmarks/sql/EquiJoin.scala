@@ -1,5 +1,5 @@
 /*
- * Crail SQL Benchmarks
+ * Spark Benchmarks
  *
  * Author: Animesh Trivedi <atr@zurich.ibm.com>
  *
@@ -18,20 +18,21 @@
  * limitations under the License.
  *
  */
-package com.ibm.crail.benchmarks.tests
 
-import com.ibm.crail.benchmarks.{ParseOptions, SQLTest}
+package com.ibm.crail.benchmarks.sql
+
+import com.ibm.crail.benchmarks.SQLOptions
 import org.apache.spark.sql.SparkSession
 
-class EquiJoin(val options: ParseOptions, spark:SparkSession) extends SQLTest(spark) {
-  private val file1 = options.getInputFiles()(0)
-  private val file2 = options.getInputFiles()(1)
-  private val f1 = spark.read.format(options.getInputFormat).options(options.getInputFormatOptions).load(file1)
-  private val f2 = spark.read.format(options.getInputFormat).options(options.getInputFormatOptions).load(file2)
-  private val key = options.getJoinKey
+class EquiJoin(val sqlOptions: SQLOptions, spark:SparkSession) extends SQLTest(spark) {
+  private val file1 = sqlOptions.getInputFiles()(0)
+  private val file2 = sqlOptions.getInputFiles()(1)
+  private val f1 = spark.read.format(sqlOptions.getInputFormat).options(sqlOptions.getInputFormatOptions).load(file1)
+  private val f2 = spark.read.format(sqlOptions.getInputFormat).options(sqlOptions.getInputFormatOptions).load(file2)
+  private val key = sqlOptions.getJoinKey
   private val result = f1.joinWith(f2, f1(key) === f2(key))
 
-  override def execute(): String = takeAction(options, result)
+  override def execute(): String = takeAction(sqlOptions, result)
 
   override def explain(): Unit = result.explain(true)
 

@@ -20,31 +20,33 @@
  */
 package com.ibm.crail.benchmarks
 
-import com.ibm.crail.benchmarks.tests.tpcds.{SingleTPCDSTest, TPCDSTest}
-import com.ibm.crail.benchmarks.tests.{EquiJoin, PageRank, ReadOnly}
-import org.apache.spark.sql.{ParquetTest, SFFReadingTest, SparkSession}
+import com.ibm.crail.benchmarks.sql.tpcds.{SingleTPCDSTest, TPCDSTest}
+import com.ibm.crail.benchmarks.sql.{EquiJoin, SQLTest}
+import com.ibm.crail.benchmarks.tests.ReadOnly
+import org.apache.spark.sql.SparkSession
 
 object SQLTestFactory {
-  def newTestInstance(options: ParseOptions, spark:SparkSession, warnings:StringBuilder) : SQLTest = {
-    if(options.isTestEquiJoin) {
-      new EquiJoin(options, spark)
-    } else if (options.isTestQuery) {
-      new SingleTPCDSTest(options, spark)
-    } else if (options.isTestTPCDS) {
-      new TPCDSTest(options, spark)
-    } else if (options.isTestReadOnly) {
-      new ReadOnly(options, spark)
-    } else if (options.isTestPageRank) {
-      new PageRank(options, spark)
-    } else if (options.isTestPaquetReading) {
-      val item = ParquetTest.process(options.getInputFiles)
-      println(" %%%%%%%%%%%%% " + item._1.size + " items ")
-      new ParquetTest(item, spark)
-    } else if (options.isTestSFFReading) {
-      val item = ParquetTest.process(options.getInputFiles)
-      new SFFReadingTest(item, spark)
+
+  def getTestObject(sqlOptions:SQLOptions, spark:SparkSession) : SQLTest = {
+    if(sqlOptions.isTestEquiJoin) {
+      new EquiJoin(sqlOptions, spark)
+    } else if (sqlOptions.isTestQuery) {
+      new SingleTPCDSTest(sqlOptions, spark)
+    } else if (sqlOptions.isTestTPCDS) {
+      new TPCDSTest(sqlOptions, spark)
+    } else if (sqlOptions.isTestReadOnly) {
+      new ReadOnly(sqlOptions, spark)
     } else {
       throw new Exception("Illegal test name ")
     }
   }
 }
+
+//else if (options.isTestPaquetReading) {
+//  val item = ParquetTest.process(options.getInputFiles)
+//  println(" %%%%%%%%%%%%% " + item._1.size + " items ")
+//  new ParquetTest(item, spark)
+//} else if (options.isTestSFFReading) {
+//  val item = ParquetTest.process(options.getInputFiles)
+//  new SFFReadingTest(item, spark)
+//}

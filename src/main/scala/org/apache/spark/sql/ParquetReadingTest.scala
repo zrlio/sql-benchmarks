@@ -4,8 +4,6 @@ package org.apache.spark.sql
   * Created by atr on 22.09.17.
   */
 
-import java.io.File
-
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileStatus, Path}
 import org.apache.parquet.column.page.PageReadStore
@@ -13,20 +11,15 @@ import org.apache.parquet.format.converter.ParquetMetadataConverter.range
 import org.apache.parquet.hadoop.ParquetFileReader
 import org.apache.parquet.hadoop.ParquetFileReader.readFooter
 import org.apache.parquet.hadoop.metadata.ParquetMetadata
-
-import scala.collection.JavaConverters._
-import scala.util.Try
-import org.apache.spark.{Accumulator, SparkConf}
-import org.apache.spark.sql.internal.SQLConf
-import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.catalyst.expressions.UnsafeRow
-import org.apache.spark.sql.execution.datasources.RecordReaderIterator
-import org.apache.spark.util.{AccumulatorV2, Utils}
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.UnsafeRow
 import org.apache.spark.sql.execution.AtrGeneratedIterator
+import org.apache.spark.sql.execution.datasources.RecordReaderIterator
 import org.apache.spark.sql.execution.datasources.parquet.VectorizedParquetRecordReader
 import org.apache.spark.sql.execution.metric.SQLMetric
 import org.apache.spark.sql.execution.vectorized.ColumnarBatch
+
+import scala.collection.JavaConverters._
 
 /**
   * Benchmark to measure parquet read performance.

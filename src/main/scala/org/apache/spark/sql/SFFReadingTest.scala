@@ -2,9 +2,9 @@ package org.apache.spark.sql
 
 import java.io.EOFException
 
-import com.ibm.crail.{CrailFS, CrailFile}
-import com.ibm.crail.benchmarks.SQLTest
+import com.ibm.crail.benchmarks.sql.SQLTest
 import com.ibm.crail.conf.CrailConfiguration
+import com.ibm.crail.{CrailFS, CrailFile}
 import org.apache.hadoop.fs.Path
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.UnsafeRow

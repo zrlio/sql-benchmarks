@@ -1,5 +1,5 @@
 /*
- * Crail SQL Benchmarks
+ * Spark Benchmarks
  *
  * Author: Animesh Trivedi <atr@zurich.ibm.com>
  *
@@ -21,39 +21,49 @@
 
 package com.ibm.crail.benchmarks
 
+import com.ibm.crail.benchmarks.fio.FIOTestFactory
+import com.ibm.crail.benchmarks.graphx.GraphXTestFactory
 import org.apache.spark.sql.SparkSession
 
 object Main {
-  
-  def foo(x : Array[String]) = x.foldLeft("")((a,b) => a + b)
-  
+
+  def foo(x : Array[String]) = x.foldLeft(" ")((a,b) => a + b)
+
+  def getTestOptions(testcase:String):TestOptions = {
+    if(testcase.compareToIgnoreCase("SQL") == 0){
+      new SQLOptions()
+    } else if(testcase.compareToIgnoreCase("Graphx") == 0) {
+      new GraphXOptions()
+    } else if (testcase.compareToIgnoreCase("FIO") == 0) {
+      new FIOOptions()
+    } else {
+      throw new Exception("Illegal test case (-c) : " + testcase)
+    }
+  }
+
+  def getTest(testOption:TestOptions, spark:SparkSession):BaseTest = {
+    testOption match {
+      case gx:GraphXOptions => GraphXTestFactory.getTestObject(gx, spark)
+      case sx:SQLOptions => SQLTestFactory.getTestObject(sx, spark)
+      case fx:FIOOptions => FIOTestFactory.getTestObject(fx, spark)
+      case _ => throw new Exception(" ??? ")
+    }
+  }
+
   def main(args : Array[String]) {
-    println( "Hello World!" )
-    println("concat arguments = " + foo(args))
+    println("concat arguments to the program = " + foo(args))
     val sb:StringBuilder = new StringBuilder
-    val options = new ParseOptions()
-    options.parse(args)
+    val x = new MainOptions
+    val testArgs = x.parseMainOptions(args)
+    val testOptions = getTestOptions(x.getClassOfTest)
+    testOptions.parse(testArgs)
+    val spark = SparkSession.builder.appName("Swiss Spark benchmarks").getOrCreate
 
-    val spark = SparkSession.builder.appName("Spark SQL benchmarks").getOrCreate
-
-    if(options.getDoWarmup) {
+    /* now we have everything setup */
+    if(testOptions.withWarmup()){
       /* here we do the trick that we execute the whole test before */
-      val warmupOptions = options
-      val saveOriginalInputFIle = options.getInputFiles
-      /* we need to modify the output file for the warm up */
-      val oldAction = options.getAction
-      val newAction = oldAction match {
-        case s:Save => Save(s.fileName+"warmup")
-        case a:Action => a
-      }
-      warmupOptions.setInputFiles(options.getWarmupInputFiles)
-      warmupOptions.setAction(newAction)
-      /* now we execute the test with warmUp options with the input
-      files set to the warm up files.
-      We can use the output file
-       */
-      val warningsWarmUp:StringBuilder = new StringBuilder
-      val warmUpTest:SQLTest = SQLTestFactory.newTestInstance(warmupOptions, spark, warningsWarmUp)
+      testOptions.setWarmupConfig()
+      val warmUpTest = getTest(testOptions, spark)
       val s = System.nanoTime()
       val warmupResult = warmUpTest.execute()
       val e = System.nanoTime()
@@ -61,33 +71,21 @@ object Main {
       sb.append("NOTICE: understand that spark does caching (data and metadata) for input files.\n")
       sb.append("        hence for sensible output use different files between -i & -w.\n")
       sb.append("WarmUp Test           : " + warmUpTest.plainExplain() + "\n")
-      sb.append("WarmUp Action         : " + warmupOptions.getAction.toString + "\n")
       sb.append("WarmUp Execution time : " + (e - s)/1000000 + " msec" + "\n")
       sb.append("WarmUp Result         : " +  warmupResult + "\n")
-      if(options.getVerbose){
-        sb.append("---------------- warmup explain ----------------------" + "\n")
-        sb.append(warmUpTest.explain())
-      }
       sb.append("-------------------------------------------------" + "\n")
       // restore
-      options.setInputFiles(saveOriginalInputFIle)
-      options.setAction(oldAction)
+      testOptions.restoreInputConfig()
     }
 
-    val warningsTest:StringBuilder = new StringBuilder
-    val test:SQLTest = SQLTestFactory.newTestInstance(options, spark, warningsTest)
+    val test = getTest(testOptions, spark)
     val s = System.nanoTime()
     val result = test.execute()
     val e = System.nanoTime()
     sb.append("-------------------------------------------------" + "\n")
     sb.append("Test           : " + test.plainExplain() + "\n")
-    sb.append("Action         : " + options.getAction.toString + "\n")
     sb.append("Execution time : " + (e - s)/1000000 + " msec" + "\n")
     sb.append("Result         : " +  result + "\n")
-    if(options.getVerbose){
-      sb.append("---------------- explain ------------------------\n")
-      sb.append(test.explain() + "\n")
-    }
     sb.append("---------------- Additional Info ------------------\n")
     sb.append(test.printAdditionalInformation())
     sb.append("-------------------------------------------------\n")
