@@ -38,6 +38,7 @@ public class FIOOptions extends TestOptions {
     private int requetSize;
 
     public FIOOptions(){
+        options = new Options();
         this.inputLocations = null;
         this.warmUpinputLocations = null;
         this.test = "HdfsRead";
