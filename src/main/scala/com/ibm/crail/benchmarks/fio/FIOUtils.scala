@@ -2,6 +2,8 @@ package com.ibm.crail.benchmarks.fio
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileStatus, Path}
+import org.apache.spark.sql.types.StructType
+import org.apache.spark.sql.{SimpleFileFormat, SparkSession}
 
 /**
   * Created by atr on 12.10.17.
@@ -46,5 +48,15 @@ object FIOUtils {
     val fileStatus:Array[FileStatus]  = fileSystem.listStatus(path)
     val files = fileStatus.map(_.getPath).filter(ok).toList
     files.map(fx=> (fx.toString, fileSystem.getFileStatus(fx).getLen))
+  }
+
+  def inferSFFSchema(dirName:String, spark:SparkSession):Option[StructType] = {
+    val path = new Path(dirName)
+    val conf = new Configuration()
+    val fileSystem = path.getFileSystem(conf)
+    // we get the file system
+    val fileStatus:Array[FileStatus]  = fileSystem.listStatus(path)
+    val sff = new SimpleFileFormat
+    sff.inferSchema(spark, Map[String, String](), fileStatus)
   }
 }

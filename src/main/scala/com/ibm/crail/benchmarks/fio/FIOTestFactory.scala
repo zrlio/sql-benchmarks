@@ -21,7 +21,7 @@
 package com.ibm.crail.benchmarks.fio
 
 import com.ibm.crail.benchmarks.{BaseTest, FIOOptions}
-import org.apache.spark.sql.{ParquetReadTest, SparkSession}
+import org.apache.spark.sql.{ParquetReadTest, SFFReadTest, SparkSession}
 
 /**
   * Created by atr on 11.10.17.
@@ -35,7 +35,7 @@ object FIOTestFactory {
     } else if (fioOptions.isTestPaquetRead){
       new ParquetReadTest(fioOptions, spark)
     } else if (fioOptions.isTestSFFRead) {
-      ???
+      new SFFReadTest(fioOptions, spark)
     } else {
       throw new Exception("Illegal test name for FIO")
     }

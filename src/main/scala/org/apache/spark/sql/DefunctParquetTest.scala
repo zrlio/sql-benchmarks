@@ -15,7 +15,7 @@ import scala.collection.JavaConverters._
 /**
   * Created by atr on 22.09.17.
   */
-object ParquetTest {
+object DefunctParquetTest {
 
   val SFFMetadataExtension:String = "-mdata"
 
@@ -48,7 +48,7 @@ object ParquetTest {
   }
 }
 
-class ParquetTest (val item:(List[String], Long), spark:SparkSession) extends SQLTest(spark) {
+class DefunctParquetTest(val item:(List[String], Long), spark:SparkSession) extends SQLTest(spark) {
   // we have all the files now
   val inx = spark.sparkContext.parallelize(item._1)
 
