@@ -50,4 +50,6 @@ abstract public class TestOptions implements Serializable {
     abstract public void restoreInputConfig();
 
     abstract public boolean withWarmup();
+
+    abstract public String getTestName();
 }

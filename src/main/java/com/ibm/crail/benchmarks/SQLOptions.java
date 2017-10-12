@@ -215,6 +215,11 @@ public class SQLOptions extends TestOptions {
         return this.doWarmup;
     }
 
+    @Override
+    public String getTestName() {
+        return this.test;
+    }
+
     public boolean isTestEquiJoin(){
         return this.test.compareToIgnoreCase("EquiJoin") == 0;
     }

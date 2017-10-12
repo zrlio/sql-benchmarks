@@ -31,5 +31,5 @@ trait BaseTest extends Serializable {
 
   def plainExplain(): String
 
-  def printAdditionalInformation():String = "AdditionalInformation: None\n"
+  def printAdditionalInformation(timelapsedinNanosec:Long):String = "AdditionalInformation: None\n"
 }

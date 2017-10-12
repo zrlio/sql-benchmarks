@@ -43,7 +43,7 @@ class PageRankTest(spark:SparkSession, options: GraphXOptions) extends GraphXTes
 
   override def plainExplain(): String = "PageRank " + options.getPageRankIterations + " iterations on " + options.getGraphFile
 
-  override def printAdditionalInformation():String = {
+  override def printAdditionalInformation(timelapsedinNanosec:Long):String = {
     val sb = new StringBuilder()
     sb.append("Graph load time: " + (end - start)/1000000 + " msec\n")
     sb.mkString

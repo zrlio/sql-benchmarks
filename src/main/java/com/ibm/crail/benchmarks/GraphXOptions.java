@@ -103,6 +103,7 @@ public class GraphXOptions extends TestOptions {
         return false;
     }
 
+    @Override
     public String getTestName(){
         return this.testName;
     }

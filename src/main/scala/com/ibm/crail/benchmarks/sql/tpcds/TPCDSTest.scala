@@ -59,7 +59,7 @@ class TPCDSTest (val sqlOptions: SQLOptions, spark:SparkSession) extends SQLTest
 
   override def plainExplain(): String = s"TPC-DS on " + sqlOptions.getInputFiles()(0)
 
-  override def printAdditionalInformation():String = {
+  override def printAdditionalInformation(timelapsedinNanosec:Long):String = {
     val sb = new StringBuilder
     i = 0
     for ((k,v) <- TPCDSQueries.query){

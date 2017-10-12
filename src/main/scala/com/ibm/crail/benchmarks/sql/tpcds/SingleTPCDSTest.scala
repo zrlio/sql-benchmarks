@@ -39,6 +39,6 @@ class SingleTPCDSTest(val sqlOptions: SQLOptions, spark:SparkSession) extends SQ
 
   override def plainExplain(): String = s"TPC-DS query ${sqlOptions.getTPCDSQuery} on " + sqlOptions.getInputFiles()(0)
 
-  override def printAdditionalInformation(): String = s"SQL query ${sqlOptions.getTPCDSQuery}: ${query}"
+  override def printAdditionalInformation(timelapsedinNanosec:Long): String = s"SQL query ${sqlOptions.getTPCDSQuery}: ${query}"
 
 }

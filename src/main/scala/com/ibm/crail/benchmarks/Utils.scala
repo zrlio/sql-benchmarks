@@ -1,5 +1,7 @@
 package com.ibm.crail.benchmarks
 
+import com.fasterxml.jackson.databind.node.DoubleNode
+
 /**
   * Created by atr on 11.10.17.
   */
@@ -72,4 +74,16 @@ object Utils {
       size + "B"
     }
   }
+
+  def decimalRound(value: Double):Double = {
+    BigDecimal(value).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
+  }
+
+  def twoLongDivToDecimal(dividend: Long, divisor:Long):Double = {
+    decimalRound(dividend.toDouble / divisor.toDouble)
+  }
+
+  val MILLISEC = 1000L
+  val MICROSEC = MILLISEC * 1000L
+  val NANOSEC = MICROSEC * 1000L
 }

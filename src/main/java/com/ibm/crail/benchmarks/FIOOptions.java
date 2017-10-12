@@ -30,6 +30,7 @@ public class FIOOptions extends TestOptions {
     private Options options;
     private String inputLocations;
     private String warmUpinputLocations;
+    private boolean withWarmup;
     private String test;
     private String[][] fxOptions; // to parquet or spark
     private int parallel; // spark parallelization
@@ -46,6 +47,7 @@ public class FIOOptions extends TestOptions {
         this.sizePerTask = 1024 * 1024; // 1MB
         this.align = 0; // alight to zero
         this.requetSize = 1024 * 1024; // 1MB
+        this.withWarmup = false;
 
         options.addOption("h", "help", false, "show help.");
         options.addOption("i", "input", true, "[String] a location of input directory where files are read and written.");
@@ -79,6 +81,7 @@ public class FIOOptions extends TestOptions {
                     // get the value and split it
                     //this.warmUpinputLocations = cmd.getOptionValue("w").split(",");
                     this.warmUpinputLocations = cmd.getOptionValue("w");
+                    this.withWarmup = true;
                 }
                 if (cmd.hasOption("t")) {
                     this.test = cmd.getOptionValue("t").trim();
@@ -113,17 +116,21 @@ public class FIOOptions extends TestOptions {
 
     @Override
     public void setWarmupConfig() {
-
+        String temp = this.inputLocations;
+        this.inputLocations = this.warmUpinputLocations;
+        this.warmUpinputLocations = temp;
     }
 
     @Override
     public void restoreInputConfig() {
-
+        String temp = this.inputLocations;
+        this.inputLocations = this.warmUpinputLocations;
+        this.warmUpinputLocations = temp;
     }
 
     @Override
     public boolean withWarmup() {
-        return false;
+        return this.withWarmup;
     }
 
 
@@ -163,7 +170,7 @@ public class FIOOptions extends TestOptions {
         return this.requetSize;
     }
 
-    public String getTest(){
+    public String getTestName(){
         return this.test;
     }
 }
