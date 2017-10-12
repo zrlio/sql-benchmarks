@@ -28,8 +28,8 @@ import org.apache.commons.cli.*;
  */
 public class FIOOptions extends TestOptions {
     private Options options;
-    private String[] inputLocations;
-    private String[] warmUpinputLocations;
+    private String inputLocations;
+    private String warmUpinputLocations;
     private String test;
     private String[][] fxOptions; // to parquet or spark
     private int parallel; // spark parallelization
@@ -48,7 +48,7 @@ public class FIOOptions extends TestOptions {
         this.requetSize = 1024 * 1024; // 1MB
 
         options.addOption("h", "help", false, "show help.");
-        options.addOption("i", "input", true, "[String,...] a list of input files/directory. A directory input will be enumerated.");
+        options.addOption("i", "input", true, "[String] a location of input directory where files are read and written.");
         options.addOption("w", "warmupInput", true, "[String,...] a list of input files/directory used for warmup. Same semantics as the -i flag.");
         options.addOption("t", "test", true, "[String] which test to perform, HdfsRead, HdfsWrite, ParquetRead, ParquetWrite, SFFRead, SFFWrite. Default " + this.test);
         options.addOption("o", "options", true, "[<String,String>,...] options to set on SparkConf, NYI");
@@ -72,11 +72,13 @@ public class FIOOptions extends TestOptions {
                 }
                 if (cmd.hasOption("i")) {
                     // get the value and split it
-                    this.inputLocations = cmd.getOptionValue("i").split(",");
+                    //this.inputLocations = cmd.getOptionValue("i").split(",");
+                    this.inputLocations = cmd.getOptionValue("i");
                 }
                 if (cmd.hasOption("w")) {
                     // get the value and split it
-                    this.warmUpinputLocations = cmd.getOptionValue("w").split(",");
+                    //this.warmUpinputLocations = cmd.getOptionValue("w").split(",");
+                    this.warmUpinputLocations = cmd.getOptionValue("w");
                 }
                 if (cmd.hasOption("t")) {
                     this.test = cmd.getOptionValue("t").trim();
@@ -85,7 +87,7 @@ public class FIOOptions extends TestOptions {
                     errorAbort(" -o is not yet implemented");
                 }
                 if(cmd.hasOption("p")){
-                    this.parallel = Integer.parseInt(cmd.getOptionValue("t").trim());
+                    this.parallel = Integer.parseInt(cmd.getOptionValue("p").trim());
                 }
                 if(cmd.hasOption("a")){
                     this.align = Integer.parseInt(cmd.getOptionValue("a").trim());
@@ -100,6 +102,12 @@ public class FIOOptions extends TestOptions {
             } catch (ParseException e) {
                 errorAbort("Failed to parse command line properties" + e);
             }
+        }
+        if(!(isTestHdfsRead() || isTestHdfsWrite() || isTestPaquetRead() || isTestSFFRead())){
+            errorAbort("Illegal test name for FIO : " + this.test);
+        }
+        if(this.inputLocations == null){
+            errorAbort("Please specify input location with -i");
         }
     }
 
@@ -135,7 +143,7 @@ public class FIOOptions extends TestOptions {
         return this.test.compareToIgnoreCase("hdfsWrite") == 0;
     }
 
-    public String[] getInputLocations(){
+    public String getInputLocations(){
         return this.inputLocations;
     }
 
@@ -153,5 +161,9 @@ public class FIOOptions extends TestOptions {
 
     public int getRequetSize(){
         return this.requetSize;
+    }
+
+    public String getTest(){
+        return this.test;
     }
 }

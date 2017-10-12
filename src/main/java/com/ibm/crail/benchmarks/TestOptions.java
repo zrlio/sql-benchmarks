@@ -23,12 +23,14 @@ package com.ibm.crail.benchmarks;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
+import java.io.Serializable;
+
 /**
  * Created by atr on 10.10.17.
  *
  * This class is meant to just give a common point of reference to the test specific options.
  */
-abstract public class TestOptions {
+abstract public class TestOptions implements Serializable {
     public void show_help(String subsystem, Options opts) {
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("com.ibm.crail.benchmarks.Main in " + subsystem, opts);

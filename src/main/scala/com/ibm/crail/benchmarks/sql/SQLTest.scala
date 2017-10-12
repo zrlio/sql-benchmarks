@@ -27,7 +27,7 @@ import org.apache.spark.sql.{Dataset, SaveMode, SparkSession}
 /**
   * Created by atr on 26.04.17.
   */
-abstract class SQLTest(val spark: SparkSession) extends Serializable with BaseTest {
+abstract class SQLTest(val spark: SparkSession)  extends BaseTest {
 
   private val toMatch = Array(
     " ",

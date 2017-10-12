@@ -28,6 +28,16 @@ import org.apache.spark.sql.SparkSession
   */
 object FIOTestFactory {
   def getTestObject(fioOptions:FIOOptions, spark:SparkSession):BaseTest = {
-    ???
+    if(fioOptions.isTestHdfsWrite){
+      new HdfsWriteTest(fioOptions, spark)
+    } else if(fioOptions.isTestHdfsRead){
+      new HdfsReadTest(fioOptions, spark)
+    } else if (fioOptions.isTestPaquetRead){
+      ???
+    } else if (fioOptions.isTestSFFRead) {
+      ???
+    } else {
+      throw new Exception("Illegal test name for FIO")
+    }
   }
 }

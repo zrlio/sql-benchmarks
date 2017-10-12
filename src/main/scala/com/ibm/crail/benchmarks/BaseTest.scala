@@ -24,7 +24,7 @@ package com.ibm.crail.benchmarks
 /**
   * Created by atr on 11.10.17.
   */
-trait BaseTest {
+trait BaseTest extends Serializable {
   def execute():String
 
   def explain()
