@@ -21,7 +21,7 @@
 package com.ibm.crail.benchmarks.fio
 
 import com.ibm.crail.benchmarks.{BaseTest, FIOOptions}
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{ParquetReadTest, SparkSession}
 
 /**
   * Created by atr on 11.10.17.
@@ -33,7 +33,7 @@ object FIOTestFactory {
     } else if(fioOptions.isTestHdfsRead){
       new HdfsReadTest(fioOptions, spark)
     } else if (fioOptions.isTestPaquetRead){
-      ???
+      new ParquetReadTest(fioOptions, spark)
     } else if (fioOptions.isTestSFFRead) {
       ???
     } else {

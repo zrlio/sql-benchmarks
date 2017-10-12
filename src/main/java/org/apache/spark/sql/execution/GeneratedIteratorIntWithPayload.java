@@ -8,7 +8,7 @@ package org.apache.spark.sql.execution;
 
 import org.apache.spark.sql.catalyst.expressions.UnsafeRow;
 
-/* 005 */ public final class AtrGeneratedIterator extends org.apache.spark.sql.execution.BufferedRowIterator {
+/* 005 */ public final class GeneratedIteratorIntWithPayload extends org.apache.spark.sql.execution.BufferedRowIterator {
     /* 006 */   private Object[] references;
     /* 007 */   private scala.collection.Iterator[] inputs;
     /* 008 */   private scala.collection.Iterator scan_input;
@@ -23,7 +23,7 @@ import org.apache.spark.sql.catalyst.expressions.UnsafeRow;
     /* 017 */   private org.apache.spark.sql.catalyst.expressions.codegen.BufferHolder scan_holder;
     /* 018 */   private org.apache.spark.sql.catalyst.expressions.codegen.UnsafeRowWriter scan_rowWriter;
     /* 019 */
-  /* 020 */   public AtrGeneratedIterator(Object[] references) {
+  /* 020 */   public GeneratedIteratorIntWithPayload(Object[] references) {
     /* 021 */     this.references = references;
     /* 022 */   }
     /* 023 */

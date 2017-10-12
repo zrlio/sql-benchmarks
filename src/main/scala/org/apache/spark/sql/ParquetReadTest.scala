@@ -1,15 +1,18 @@
-package com.ibm.crail.benchmarks.fio
+package org.apache.spark.sql
 
+import com.ibm.crail.benchmarks.fio.FIOUtils
 import com.ibm.crail.benchmarks.{BaseTest, FIOOptions, Utils}
-import org.apache.hadoop.conf.Configuration
-import org.apache.hadoop.fs.{FileSystem, Path}
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.UnsafeRow
+import org.apache.spark.sql.execution.GeneratedIteratorIntWithPayload
+import org.apache.spark.sql.execution.datasources.RecordReaderIterator
+import org.apache.spark.sql.execution.datasources.parquet.VectorizedParquetRecordReader
+import org.apache.spark.sql.execution.metric.SQLMetric
 
 /**
-  * Created by atr on 11.10.17.
+  * Created by atr on 12.10.17.
   */
-
-class HdfsReadTest(fioOptions:FIOOptions, spark:SparkSession) extends BaseTest {
+class ParquetReadTest (fioOptions:FIOOptions, spark:SparkSession) extends BaseTest {
 
   private val filesEnumerated = FIOUtils.enumerateWithSize(fioOptions.getInputLocations)
   println(filesEnumerated)
@@ -18,47 +21,47 @@ class HdfsReadTest(fioOptions:FIOOptions, spark:SparkSession) extends BaseTest {
     totalBytesExpected = totalBytesExpected + fx._2
   })
 
-  private val totalBytesRead = spark.sparkContext.longAccumulator("totalBytesRead")
   private val iotime = spark.sparkContext.longAccumulator("iotime")
   private val setuptime = spark.sparkContext.longAccumulator("setuptime")
-
-  private val requestSize = fioOptions.getRequetSize
-  private val align = fioOptions.getAlign
+  private val totalRows = spark.sparkContext.longAccumulator("totalRows")
   private val rdd = spark.sparkContext.parallelize(filesEnumerated, fioOptions.getParallelism)
 
 
   override def execute(): String = {
     rdd.foreach(fx =>{
       val s1 = System.nanoTime()
-      val conf = new Configuration()
-      val path = new Path(fx._1)
-      val uri = path.toUri
-      val fs:FileSystem = FileSystem.get(uri, conf)
-      val istream = fs.open(path)
-      val buffer = new Array[Byte](requestSize - align)
-      var readSoFar = 0L
+      /* from there on we use the generated code */
+      import scala.collection.JavaConverters._
+      val vectorizedReader = new VectorizedParquetRecordReader
+      vectorizedReader.initialize(fx._1, List("intKey", "payload").asJava)
+      vectorizedReader.enableReturningBatches()
 
+      val recordIterator = new RecordReaderIterator(vectorizedReader).asInstanceOf[Iterator[InternalRow]]
+      val objArr = new Array[Object](2)
+      // these are dummy SQL metrics we can remove them eventually
+      objArr(0) = new SQLMetric("atr1", 0L)
+      objArr(1) = new SQLMetric("atr1", 0L)
+      val generatedIterator = new GeneratedIteratorIntWithPayload(objArr)
+      generatedIterator.init(0, Array(recordIterator))
       val s2 = System.nanoTime()
-      while (readSoFar < fx._2){
-        readSoFar+=istream.read(buffer)
+      var rowsx = 0L
+
+      while(generatedIterator.hasNext){
+        generatedIterator.next().asInstanceOf[UnsafeRow]
+        rowsx+=1
       }
       val s3 = System.nanoTime()
-      istream.close()
-      val s4 = System.nanoTime()
 
       iotime.add(s3 -s2)
       setuptime.add(s2 -s1)
-      setuptime.add(s4 -s3)
-      totalBytesRead.add(readSoFar)
+      totalRows.add(rowsx)
     })
-    require(totalBytesExpected == totalBytesRead.value,
-      " Expected ( " + totalBytesExpected + " ) and read ( "+totalBytesRead.value+" ) bytes do not match ")
-    "Read " + filesEnumerated.size + " HDFS files in " + fioOptions.getInputLocations + " directory, total size " + totalBytesRead.value + " bytes, align " + align
+    "Parquet<int,payload> read " + filesEnumerated.size + " HDFS files in " + fioOptions.getInputLocations + " directory, total rows " + totalRows.value
   }
 
   override def explain(): Unit = {}
 
-  override def plainExplain(): String = "Hdfs read test"
+  override def plainExplain(): String = "Parquet<int,payload> reading test"
 
   override def printAdditionalInformation(timelapsedinNanosec:Long): String = {
     val bw = Utils.twoLongDivToDecimal(totalBytesExpected, timelapsedinNanosec)

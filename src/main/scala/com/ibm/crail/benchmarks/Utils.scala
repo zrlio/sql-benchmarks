@@ -1,7 +1,5 @@
 package com.ibm.crail.benchmarks
 
-import com.fasterxml.jackson.databind.node.DoubleNode
-
 /**
   * Created by atr on 11.10.17.
   */

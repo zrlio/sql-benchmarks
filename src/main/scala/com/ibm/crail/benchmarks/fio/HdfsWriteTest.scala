@@ -1,7 +1,5 @@
 package com.ibm.crail.benchmarks.fio
 
-import java.io.IOException
-
 import com.ibm.crail.benchmarks.{BaseTest, FIOOptions, Utils}
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
@@ -60,9 +58,9 @@ class HdfsWriteTest (fioOptions:FIOOptions, spark:SparkSession) extends BaseTest
     val bw = Utils.twoLongDivToDecimal(8L * fioOptions.getNumTasks * fioOptions.getSizePerTask, timelapsedinNanosec)
     val ioTime = Utils.twoLongDivToDecimal(iotime.value, Utils.MICROSEC)
     val setupTime = Utils.twoLongDivToDecimal(setuptime.value, Utils.MICROSEC)
-    val stages = fioOptions.getNumTasks / fioOptions.getParallelism
+    val rounds = fioOptions.getNumTasks / fioOptions.getParallelism
     "Bandwidth is           : " + bw + " Gbps \n"+
-    "Total, io time         : " + ioTime + " msec | setuptime " + setupTime + " msec | numStages " + stages + "\n"
+      "Total, io time         : " + ioTime + " msec | setuptime " + setupTime + " msec | (numTasks: " + fioOptions.getNumTasks + ", parallelism: " + fioOptions.getParallelism + ", rounds: " + rounds + "\n"
 //    +"Average, io time/stage : " + Utils.decimalRound(ioTime/fioOptions.getNumTasks.toDouble) +
 //      " msec | setuptime " + Utils.decimalRound(setupTime/fioOptions.getNumTasks.toDouble) + " msec\n"+
 //    "NOTE: keep in mind that if tasks > #cpus_in_the_cluster then you need to adjust the average time\n"

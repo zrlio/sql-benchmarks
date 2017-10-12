@@ -5,7 +5,7 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileStatus, Path}
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.UnsafeRow
-import org.apache.spark.sql.execution.AtrGeneratedIterator
+import org.apache.spark.sql.execution.GeneratedIteratorIntWithPayload
 import org.apache.spark.sql.execution.datasources.RecordReaderIterator
 import org.apache.spark.sql.execution.datasources.parquet.VectorizedParquetRecordReader
 import org.apache.spark.sql.execution.metric.SQLMetric
@@ -65,7 +65,7 @@ class ParquetTest (val item:(List[String], Long), spark:SparkSession) extends SQ
       // these are dummy SQL metrics we can remove them eventually
       objArr(0) = new SQLMetric("atr1", 0L)
       objArr(1) = new SQLMetric("atr1", 0L)
-      val generatedIterator = new AtrGeneratedIterator(objArr)
+      val generatedIterator = new GeneratedIteratorIntWithPayload(objArr)
       generatedIterator.init(0, Array(recordIterator))
 
       while(generatedIterator.hasNext){

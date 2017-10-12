@@ -13,7 +13,7 @@ import org.apache.parquet.hadoop.ParquetFileReader.readFooter
 import org.apache.parquet.hadoop.metadata.ParquetMetadata
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.UnsafeRow
-import org.apache.spark.sql.execution.AtrGeneratedIterator
+import org.apache.spark.sql.execution.GeneratedIteratorIntWithPayload
 import org.apache.spark.sql.execution.datasources.RecordReaderIterator
 import org.apache.spark.sql.execution.datasources.parquet.VectorizedParquetRecordReader
 import org.apache.spark.sql.execution.metric.SQLMetric
@@ -396,7 +396,7 @@ object ParquetReadingTest {
       val objArr = new Array[Object](2)
       objArr(0) = new SQLMetric("atr1", 0L)
       objArr(1) = new SQLMetric("atr1", 0L)
-      val generatedIterator = new AtrGeneratedIterator(objArr)
+      val generatedIterator = new GeneratedIteratorIntWithPayload(objArr)
       generatedIterator.init(0, Array(recordIterator))
 
       var itemCount = 0L
@@ -431,7 +431,6 @@ object ParquetReadingTest {
 
     val fileStatus:Array[FileStatus]  = fileSystem.listStatus(path)
     val files = fileStatus.map(_.getPath).filter(ok).toList
-    val constructSchema = false
     // we have all the files now
 
     val inx = spark.sparkContext.parallelize(files)
@@ -456,7 +455,7 @@ object ParquetReadingTest {
       // these are dummy SQL metrics we can remove them eventually
       objArr(0) = new SQLMetric("atr1", 0L)
       objArr(1) = new SQLMetric("atr1", 0L)
-      val generatedIterator = new AtrGeneratedIterator(objArr)
+      val generatedIterator = new GeneratedIteratorIntWithPayload(objArr)
       generatedIterator.init(0, Array(recordIterator))
 
       while(generatedIterator.hasNext){
