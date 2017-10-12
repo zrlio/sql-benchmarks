@@ -33,7 +33,8 @@ public class FIOOptions extends TestOptions {
     private boolean withWarmup;
     private String test;
     private String[][] fxOptions; // to parquet or spark
-    private int parallel; // spark parallelization
+    private int parallelism; // spark parallelization
+    private int numTasks;
     private long sizePerTask; // valid for writing
     private int align; // align to the block size
     private int requetSize;
@@ -43,7 +44,8 @@ public class FIOOptions extends TestOptions {
         this.inputLocations = null;
         this.warmUpinputLocations = null;
         this.test = "HdfsRead";
-        this.parallel = 1;
+        this.numTasks = 1;
+        this.parallelism = 1;
         this.sizePerTask = 1024 * 1024; // 1MB
         this.align = 0; // alight to zero
         this.requetSize = 1024 * 1024; // 1MB
@@ -54,7 +56,8 @@ public class FIOOptions extends TestOptions {
         options.addOption("w", "warmupInput", true, "[String,...] a list of input files/directory used for warmup. Same semantics as the -i flag.");
         options.addOption("t", "test", true, "[String] which test to perform, HdfsRead, HdfsWrite, ParquetRead, ParquetWrite, SFFRead, SFFWrite. Default " + this.test);
         options.addOption("o", "options", true, "[<String,String>,...] options to set on SparkConf, NYI");
-        options.addOption("p", "parallel", true, "[Int] number of parallel spark tasks");
+        options.addOption("n", "numTasks", true, "[Int] number of tasks");
+        options.addOption("p", "parallel", true, "[Int] amoount of parallelism in terms of parallel spark tasks. Default: = numTasks");
         options.addOption("s", "size", true, "[Long] size per task. Takes prefixes like k, m, g, t");
         options.addOption("a", "align", true, "[Int] alignment");
         options.addOption("r", "requestSize", true, "[Int] request size ");
@@ -62,6 +65,7 @@ public class FIOOptions extends TestOptions {
 
     @Override
     public void parse(String[] args) {
+        boolean parallismSet = false;
         if (args != null) {
             CommandLineParser parser = new GnuParser();
             CommandLine cmd = null;
@@ -90,7 +94,15 @@ public class FIOOptions extends TestOptions {
                     errorAbort(" -o is not yet implemented");
                 }
                 if(cmd.hasOption("p")){
-                    this.parallel = Integer.parseInt(cmd.getOptionValue("p").trim());
+                    this.parallelism = Integer.parseInt(cmd.getOptionValue("p").trim());
+                    parallismSet = true;
+                }
+                if(cmd.hasOption("n")){
+                    this.numTasks = Integer.parseInt(cmd.getOptionValue("n").trim());
+                    if(!parallismSet) {
+                        /* if parallelism is not set explicitly then default it here */
+                        this.parallelism = this.numTasks;
+                    }
                 }
                 if(cmd.hasOption("a")){
                     this.align = Integer.parseInt(cmd.getOptionValue("a").trim());
@@ -154,8 +166,12 @@ public class FIOOptions extends TestOptions {
         return this.inputLocations;
     }
 
-    public int getParallel(){
-        return this.parallel;
+    public int getParallelism(){
+        return this.parallelism;
+    }
+
+    public int getNumTasks(){
+        return this.numTasks;
     }
 
     public long getSizePerTask(){

@@ -16,9 +16,16 @@ import scala.collection.JavaConverters._
   * Created by atr on 22.09.17.
   */
 object ParquetTest {
+
+  val SFFMetadataExtension:String = "-mdata"
+
+  def isSFFMetaFile(path:String):Boolean = {
+    path.substring(path.length - SFFMetadataExtension.length, path.length).compareTo(SFFMetadataExtension) == 0
+  }
+
   def ok(path:Path):Boolean = {
-    val fname = path.getName()
-    fname(0) != '_' && fname(0) != '.'
+    val fname = path.getName
+    fname(0) != '_' && fname(0) != '.' && !isSFFMetaFile(fname)
   }
 
   def process(fileNames:Array[String]):(List[String], Long) = {

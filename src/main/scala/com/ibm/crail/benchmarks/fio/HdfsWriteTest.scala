@@ -13,13 +13,13 @@ import org.apache.spark.sql.SparkSession
 class HdfsWriteTest (fioOptions:FIOOptions, spark:SparkSession) extends BaseTest  {
   val baseName = "/hdfsfile"
   private val fullPathFileNames = {
-    for (i <- 0 until fioOptions.getParallel) yield (fioOptions.getInputLocations + baseName + i)
+    for (i <- 0 until fioOptions.getNumTasks) yield fioOptions.getInputLocations + baseName + i
   }
   private val iotime = spark.sparkContext.longAccumulator("iotime")
   private val setuptime = spark.sparkContext.longAccumulator("setuptime")
   private val requestSize = fioOptions.getRequetSize
   private val times = fioOptions.getSizePerTask / requestSize
-  private val rdd = spark.sparkContext.parallelize(fullPathFileNames, fullPathFileNames.size)
+  private val rdd = spark.sparkContext.parallelize(fullPathFileNames, fioOptions.getParallelism)
 
   override def execute(): String = {
     rdd.foreach(fx => {
@@ -57,14 +57,14 @@ class HdfsWriteTest (fioOptions:FIOOptions, spark:SparkSession) extends BaseTest
   override def plainExplain(): String = "Hdfs write test"
 
   override def printAdditionalInformation(timelapsedinNanosec:Long): String = {
-    val bw = Utils.twoLongDivToDecimal(8L * fioOptions.getParallel * fioOptions.getSizePerTask, timelapsedinNanosec)
+    val bw = Utils.twoLongDivToDecimal(8L * fioOptions.getNumTasks * fioOptions.getSizePerTask, timelapsedinNanosec)
     val ioTime = Utils.twoLongDivToDecimal(iotime.value, Utils.MICROSEC)
     val setupTime = Utils.twoLongDivToDecimal(setuptime.value, Utils.MICROSEC)
-
-    "Bandwidth is          : " + bw + " Gbps \n"+
-    "Total, io time        : " + ioTime + " msec | setuptime " + setupTime + " msec \n"+
-    "Average, io time/task : " + Utils.decimalRound(ioTime/fioOptions.getParallel.toDouble) +
-      " msec | setuptime " + Utils.decimalRound(setupTime/fioOptions.getParallel.toDouble) + " msec\n"+
-    "NOTE: keep in mind that if tasks > #cpus_in_the_cluster then you need to adjust the average time\n"
+    val stages = fioOptions.getNumTasks / fioOptions.getParallelism
+    "Bandwidth is           : " + bw + " Gbps \n"+
+    "Total, io time         : " + ioTime + " msec | setuptime " + setupTime + " msec | numStages " + stages + "\n"
+//    +"Average, io time/stage : " + Utils.decimalRound(ioTime/fioOptions.getNumTasks.toDouble) +
+//      " msec | setuptime " + Utils.decimalRound(setupTime/fioOptions.getNumTasks.toDouble) + " msec\n"+
+//    "NOTE: keep in mind that if tasks > #cpus_in_the_cluster then you need to adjust the average time\n"
   }
 }
