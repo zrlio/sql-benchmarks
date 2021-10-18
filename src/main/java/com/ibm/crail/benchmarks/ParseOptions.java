@@ -23,6 +23,7 @@ package com.ibm.crail.benchmarks;
 
 import org.apache.commons.cli.*;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -165,17 +166,13 @@ public class ParseOptions {
 
             if(cmd.hasOption("i")){
                 // get the value and split it
-                this.inputFiles = cmd.getOptionValue("i").split(",");
-                for (String inputFile : this.inputFiles) {
-                    inputFile.trim();
-                }
+                this.inputFiles = Arrays.stream(cmd.getOptionValue("i").split(","))
+                        .map(String::trim).toArray(String[]::new);
             }
             if(cmd.hasOption("w")){
                 // get the value and split it
-                this.warmupInputFiles = cmd.getOptionValue("w").split(",");
-                for (String inputFile : this.warmupInputFiles) {
-                    inputFile.trim();
-                }
+                this.warmupInputFiles = Arrays.stream(cmd.getOptionValue("w").split(","))
+                        .map(String::trim).toArray(String[]::new);
                 this.doWarmup = true;
             }
             if(cmd.hasOption("a")){
