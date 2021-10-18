@@ -24,11 +24,12 @@
   </developers>
 
   <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <java.version>1.8</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
     <encoding>UTF-8</encoding>
-    <scala.version>2.11.8</scala.version>
-    <scala.compat.version>2.11</scala.compat.version>
+    <scala.version>2.12.10</scala.version>
+    <scala.compat.version>2.12</scala.compat.version>
   </properties>
 
   <dependencies>
@@ -47,32 +48,30 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <version>4.13.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.specs2</groupId>
       <artifactId>specs2-core_${scala.compat.version}</artifactId>
-      <version>2.4.16</version>
+      <version>4.12.12</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.scalatest</groupId>
       <artifactId>scalatest_${scala.compat.version}</artifactId>
-      <version>2.2.4</version>
+      <version>3.2.9</version>
       <scope>test</scope>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/org.apache.spark/spark-sql_2.11 -->
     <dependency>
       <groupId>org.apache.spark</groupId>
-      <artifactId>spark-sql_2.11</artifactId>
-      <version>2.2.0</version>
+      <artifactId>spark-sql_${scala.compat.version}</artifactId>
+      <version>3.1.2</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/org.apache.spark/spark-graphx_2.10 -->
     <dependency>
       <groupId>org.apache.spark</groupId>
-      <artifactId>spark-graphx_2.11</artifactId>
-      <version>2.2.0</version>
+      <artifactId>spark-graphx_${scala.compat.version}</artifactId>
+      <version>3.1.2</version>
     </dependency>
   </dependencies>
 
